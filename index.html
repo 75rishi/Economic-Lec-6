@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurangzeb Quiz Application</title>
+    <style>
+        /* General Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', sans-serif;
+            min-height: 100vh;
+            transition: background 0.5s ease;
+            overflow-x: hidden;
+        }
+
+        /* First Page Styles */
+        #startPage {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+      .box {
+    background: linear-gradient(45deg, rgb(218, 0, 171), rgb(0, 255, 191), rgb(255, 221, 0), rgb(218, 0, 171));
+    background-size: 400% 400%;
+    padding: 8px 50px;
+    font-size: 2.1rem;
+    font-weight: 700;
+    font-family: 'Tangerine', cursive;
+    color: black;
+    box-shadow: 0 0 50px rgb(0, 255, 191);
+    outline: 4px solid black;
+    outline-offset: 5px;
+    cursor: pointer;
+    border-radius: 10px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: gradientFlow 5s ease infinite, pulse 1s infinite;
+    transition: background 0.5s ease, box-shadow 0.3s ease;
+}
+
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.box:hover {
+    background: linear-gradient(45deg, rgb(0, 255, 255), rgb(255, 0, 255), rgb(255, 255, 0), rgb(0, 255, 255));
+    background-size: 400% 400%;
+    box-shadow: 0 0 50px rgb(255, 0, 255);
+}
+
+        .box:hover {
+            background-color: rgb(56, 255, 242);
+            box-shadow: 0 0 80px yellow;
+            outline-color: rgb(0, 255, 102);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 50px rgb(0, 255, 0); }
+            50% { box-shadow: 0 0 100px rgb(255, 0, 0); }
+            100% { box-shadow: 0 0 50px rgb(104, 61, 82); }
+        }
+
+        .loading-text {
+            position: relative;
+            font-family: 'Allura', cursive;
+            background: linear-gradient(90deg, rgb(255, 0, 0), #0ff, #00f) -1810% / 114%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font: 900 clamp(2em, 6vw, 4em) 'Allura', cursive;
+            animation: shimmer 2s linear infinite, glitch 2s infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 100%; }
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: none; opacity: 1; }
+            92% { transform: translateX(-1px) skew(0deg); opacity: 0.9; }
+            94% { transform: translateX(2px) skew(-2deg); opacity: 1; }
+            96% { transform: translateX(-1px) skew(1deg); opacity: 0.95; }
+            98% { transform: translateX(1px) skew(-1deg); opacity: 1; }
+        }
+
+        /* Quiz Page Styles */
+        #quizPage {
+            background: linear-gradient(135deg, #452c4753, #13a155);
+            color: #000000;
+            position: relative;
+            min-height: 100vh;
+            display: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+       .card {
+    background: linear-gradient(135deg, #91b9d8, #83b1a8, #b8afed);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgb(183, 56, 56);
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: transform 0.2s;
+}
+
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question .en {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #000000;
+            margin-top: 5px;
+        }
+
+        .options button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            margin: 5px 0;
+            border: 3px solid #000;
+            border-radius: 8px;
+            background: #9cb7cf;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.4s ease, transform 0.1s, border-color 0.4s ease, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            color: #000;
+        }
+
+        .options button:hover {
+            background: #f4ff1f;
+            border-color: #9d00ff;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .options button.correct {
+            background: #6cff5e !important;
+            border-color: #ae00ff !important;
+            cursor: default;
+            color: #000 !important;
+             font-weight: bold;
+        }
+
+        .options button.wrong {
+            background: #b51010 !important;
+            border-color: #000 !important;
+            cursor: default;
+            color: #000 !important;
+        }
+
+        .options button.disabled {
+            pointer-events: none;
+            color: #000;
+        }
+
+        .options button::after {
+            content: '';
+            position: absolute;
+            background: rgb(212, 51, 51);
+            border-radius: 50%;
+            width: 0;
+            height: 0;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .options button:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to { width: 300px; height: 300px; opacity: 0; }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4311e8, #ff00dd, #cbd6db, #4311e8);
+            background-size: 400% 400%;
+            animation: flowGradient 5s ease infinite;
+            transition: transform 0.3s ease, box-shadow 0.5s ease;
+            color: #000;
+        }
+
+        .controls button:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+        }
+
+        @keyframes flowGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background: #89b2f4;
+            border-left: 4px solid #000000;
+            font-size: 0.95rem;
+            animation: slideDown 0.4s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+            font-weight: bold;
+        }
+
+        .explanation.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress {
+            height: 8px;
+            background: #fff;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #18ff03d6, #ff2802);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3e5a52;
+            position: absolute;
+            top: -16px;
+            right: -20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.8rem;
+            transform: scale(0);
+            animation: grow 0.5s ease forwards;
+        }
+
+        @keyframes grow {
+            to { transform: scale(1); }
+        }
+
+        #timerContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            color: #000;
+            z-index: 9999;
+            user-select: none;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        #timerContainer.hidden {
+            visibility: hidden;
+        }
+
+        #timerBar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        #timerBarFill {
+            height: 100%;
+            background: #ff4444;
+            width: 100%;
+            transition: width 1s linear, background 1s ease;
+        }
+
+        /* Dashboard Page Styles */
+        #dashboardPage {
+            background: linear-gradient(45deg, #a1c4fd, #c2e9fb, #d4fc79);
+            background-size: 600% 400%;
+            animation: flow 5s ease-in-out infinite;
+            padding: 40px;
+            display: none;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideUpContainer 1.2s ease-in-out;
+        }
+
+        @keyframes slideUpContainer {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .dashboard-container h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: bounceIn 1s ease-in-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 30px;
+            padding: 20px 0;
+        }
+
+        .dash-box {
+            border: 4px solid rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+            background-size: 800% 600%;
+            animation: waveFlow 6s ease-in-out infinite, floatUpDown 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes waveFlow {
+            0% { background-position: 0% 50%; filter: brightness(1) saturate(1); }
+            25% { background-position: 50% 55%; filter: brightness(1.3) saturate(1.3); }
+            50% { background-position: 100% 50%; filter: brightness(1.5) saturate(1.4); }
+            75% { background-position: 50% 45%; filter: brightness(1.3) saturate(1.2); }
+            100% { background-position: 0% 50%; filter: brightness(1) saturate(1); }
+        }
+
+        .dash-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(-45deg, rgba(112, 201, 239, 0.15), rgba(109, 184, 121, 0.181), rgb(0, 0, 0));
+            animation: waveLine 6s ease-in-out infinite;
+            transform: rotate(45deg);
+            z-index: 0;
+            filter: drop-shadow(0 0 6px rgba(35, 218, 185, 0.6));
+        }
+
+        @keyframes waveLine {
+            0% { transform: rotate(45deg) translateX(120%) scale(0.85); opacity: 0.35; }
+            25% { transform: rotate(45deg) translateX(60%) scale(1); opacity: 0.65; }
+            50% { transform: rotate(45deg) translateX(-60%) scale(1.25); opacity: 1; }
+            75% { transform: rotate(25deg) translateX(30%) scale(1); opacity: 0.7; }
+            100% { transform: rotate(45deg) translateX(120%) scale(0.85); opacity: 0.35; }
+        }
+
+        .dash-box h4, .dash-box p {
+            position: relative;
+            z-index: 1;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .dash-box:nth-child(1) { background: linear-gradient(45deg, #ff6b6b, #ff9f43, #feca57); animation-delay: 0s; }
+        .dash-box:nth-child(2) { background: linear-gradient(45deg, #1dd1a1, #00d2d3, #54a0ff); animation-delay: 0.2s; }
+        .dash-box:nth-child(3) { background: linear-gradient(45deg, #ff4d4d, #ff793f, #ffcc99); animation-delay: 0.4s; }
+        .dash-box:nth-child(4) { background: linear-gradient(45deg, #40f752, #706fd3, #9980fa); animation-delay: 0.6s; }
+        .dash-box:nth-child(5) { background: linear-gradient(45deg, #ff9ff3, #feca57, #1dd1a1); animation-delay: 0.8s; }
+        .dash-box:nth-child(6) { background: linear-gradient(45deg, #54a0ff, #00d2d3, #ff6b6b); animation-delay: 1s; }
+        .dash-box:nth-child(7) { background: linear-gradient(45deg, #ffcc99, #ff4d4d, #9980fa); animation-delay: 1.2s; }
+        .dash-box:nth-child(8) { background: linear-gradient(45deg, #706fd3, #ff9ff3, #ff793f); animation-delay: 1.4s; }
+        .dash-box:nth-child(9) { background: linear-gradient(45deg, #feca57, #4834d4, #54a0ff); animation-delay: 1.6s; }
+        .dash-box:nth-child(10) { background: linear-gradient(45deg, #00d2d3, #ff6b6b, #ffcc99); animation-delay: 1.8s; }
+        .dash-box:nth-child(11) { background: linear-gradient(45deg, #ff793f, #1dd1a1, #706fd3); animation-delay: 2s; }
+        .dash-box:nth-child(12) { background: linear-gradient(45deg, #9980fa, #ff6b6b, #feca57); animation-delay: 2.2s; }
+        .dash-box:nth-child(13) { background: linear-gradient(45deg, #54a0ff, #ffcc99, #ff4d4d); animation-delay: 2.4s; }
+        .dash-box:nth-child(14) { background: linear-gradient(45deg, #ff9ff3, #00d2d3, #4834d4); animation-delay: 2.6s; }
+        .dash-box:nth-child(15) { background: linear-gradient(45deg, #feca57, #ff793f, #1dd1a1); animation-delay: 2.8s; }
+        .dash-box:nth-child(16) { background: linear-gradient(45deg, #706fd3, #ff6b6b, #54a0ff); animation-delay: 3s; }
+        .dash-box:nth-child(17) { background: linear-gradient(45deg, #ff4d4d, #9980fa, #00d2d3); animation-delay: 3.2s; }
+        .dash-box:nth-child(18) { background: linear-gradient(45deg, #ffcc99, #ff9ff3, #4834d4); animation-delay: 3.4s; }
+        .dash-box:nth-child(19) { background: linear-gradient(45deg, #1dd1a1, #ff793f, #706fd3); animation-delay: 3.6s; }
+        .dash-box:nth-child(20) { background: linear-gradient(45deg, #54a0ff, #feca57, #ff6b6b); animation-delay: 3.8s; }
+        .dash-box:nth-child(21) { background: linear-gradient(45deg, #9980fa, #ff4d4d, #00d2d3); animation-delay: 4s; }
+        .dash-box:nth-child(22) { background: linear-gradient(45deg, #ff9ff3, #ffcc99, #ff793f); animation-delay: 4.2s; }
+        .dash-box:nth-child(23) { background: linear-gradient(45deg, #4834d4, #1dd1a1, #54a0ff); animation-delay: 4.4s; }
+        .dash-box:nth-child(24) { background: linear-gradient(45deg, #ff6b6b, #706fd3, #ff4d4d); animation-delay: 4.6s; }
+        .dash-box:nth-child(25) { background: linear-gradient(45deg, #00d2d3, #ff9ff3, #feca57); animation-delay: 4.8s; }
+        .dash-box:nth-child(26) { background: linear-gradient(45deg, #ffcc99, #54a0ff, #9980fa); animation-delay: 5s; }
+        .dash-box:nth-child(27) { background: linear-gradient(45deg, #ff793f, #ff6b6b, #1dd1a1); animation-delay: 5.2s; }
+        .dash-box:nth-child(28) { background: linear-gradient(45deg, #706fd3, #ff4d4d, #00d2d3); animation-delay: 5.4s; }
+        .dash-box:nth-child(29) { background: linear-gradient(45deg, #feca57, #9980fa, #ff9ff3); animation-delay: 5.6s; }
+        .dash-box:nth-child(30) { background: linear-gradient(45deg, #54a0ff, #ff793f, #ff6b6b); animation-delay: 5.8s; }
+
+        .dash-box:hover {
+            transform: scale(1.15) translateY(-10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            filter: brightness(1.3);
+        }
+
+        .dash-box h4 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dash-box p {
+            font-size: 28px;
+            margin: 12px 0 0;
+        }
+
+        .back-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4311e8, #ff00dd, #cbd6db, #4311e8);
+            background-size: 400% 400%;
+            animation: flowGradient 5s ease infinite;
+            color: #000;
+        }
+
+        .back-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+        }
+
+        #restartModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 1px solid black;
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container, .dashboard-container {
+                padding: 20px;
+            }
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 20px;
+            }
+            .dash-box p {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Page -->
+    <div id="startPage">
+        <div class="box" onclick="goToQuizPage()">Start</div>
+        <div class="loading-text">Lucky</div>
+    </div>
+
+    <!-- Quiz Page -->
+    <div id="quizPage">
+        <div id="timerContainer">
+            <div>Total Time: <span id="totalTime">00:00</span></div>
+            <div id="timerBar"><div id="timerBarFill"></div></div>
+        </div>
+        <div class="container" id="quizContainer">
+            <h1>economic Lec 6 </h1>
+            <div id="score"></div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+                <div class="progress-circle" id="progressCircle">0%</div>
+            </div>
+            <div id="quiz"></div>
+            <div class="controls">
+                <button class="submit" onclick="submitQuiz()">Submit</button>
+                <button class="restart" onclick="openRestartModal()">Restart</button>
+                <button class="dashboard" onclick="goToDashboard()">Show Dashboard</button>
+            </div>
+            <select id="languageToggle" onchange="toggleLanguage()">
+                <option value="hi">हिन्दी</option>
+                <option value="en">English</option>
+                <option value="both">Both</option>
+            </select>
+            <div id="restartModal">
+                <h2>Select Questions to Restart</h2>
+                <div id="questionCheckboxes"></div>
+                <button onclick="applyRestart()">Apply</button>
+                <button onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage">
+        <div class="dashboard-container">
+            <h2>🎓 Quiz Result Dashboard</h2>
+            <div class="grid" id="dashboardGrid"></div>
+            <button class="back-button" onclick="goToQuizPage()">Back to Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+    {
+        "q": "यदि कोई मुद्रा पूर्णकाय मुद्रा नहीं है और उसका अंकित मूल्य सामग्री मूल्य से अधिक है, तो उसे क्या कहा जाएगा?",
+        "q_en": "If a currency is not full-bodied and its face value is higher than its material value, what will it be called?",
+        "options": ["फिएट मुद्रा", "संकेतिक मुद्रा", "साख मुद्रा", "अनुज्ञापित मुद्रा"],
+        "options_en": ["Fiat money", "Token currency", "Fiduciary money", "Authorized money"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, संकेतिक मुद्रा वह है जिसका अंकित मूल्य सामग्री मूल्य से अधिक होता है, जैसे कागजी नोट और कुछ धातु के सिक्के। यह प्रश्न अत्यंत कठिन है क्योंकि फिएट मुद्रा और साख मुद्रा के साथ भ्रम हो सकता है, लेकिन नोट्स स्पष्ट रूप से संकेतिक मुद्रा को इस तरह परिभाषित करते हैं।",
+        "explanation_en": "According to the notes, token currency is one where the face value exceeds the material value, such as paper notes and some metal coins. This question is very hard because it can be confused with fiat money and fiduciary money, but the notes clearly define token currency in this manner."
+    },
+    {
+        "q": "RBI और SPMCIL की भूमिकाओं में सिक्कों और नोटों के संदर्भ में क्या अंतर है?",
+        "q_en": "What is the difference between the roles of RBI and SPMCIL regarding coins and notes?",
+        "options": ["RBI सिक्के ढालता है, SPMCIL नोट छापता है", "RBI नोट छापता है, SPMCIL सिक्के ढालता है", "RBI और SPMCIL दोनों सिक्के और नोट बनाते हैं", "RBI केवल डिजिटल मुद्रा जारी करता है, SPMCIL सिक्के और नोट बनाता है"],
+        "options_en": ["RBI mints coins, SPMCIL prints notes", "RBI prints notes, SPMCIL mints coins", "RBI and SPMCIL both make coins and notes", "RBI only issues digital currency, SPMCIL makes coins and notes"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, भारतीय रिज़र्व बैंक (RBI) को भारतीय रिज़र्व बैंक अधिनियम, 1934 की धारा 22 के तहत बैंक नोट छापने का एकमात्र अधिकार है, जबकि SPMCIL भारत सरकार की ओर से सिक्के ढालता है। यह प्रश्न कठिन है क्योंकि दोनों संस्थाओं की भूमिकाएं आसानी से भ्रमित हो सकती हैं।",
+        "explanation_en": "According to the notes, the Reserve Bank of India (RBI) has the sole authority to print bank notes under Section 22 of the RBI Act, 1934, while SPMCIL mints coins on behalf of the Government of India. This question is very hard because the roles of both institutions can easily be confused."
+    },
+    {
+        "q": "यदि कोई मुद्रा साख मुद्रा है, लेकिन लोगों का विश्वास खो देती है, तो क्या होगा?",
+        "q_en": "What happens if fiduciary money loses the trust of people?",
+        "options": ["इसका मूल्य बढ़ जाएगा", "यह कानूनी निविदा बन जाएगी", "इसका उपयोग लेन-देन में नहीं होगा", "यह डिजिटल मुद्रा में बदल जाएगी"],
+        "options_en": ["Its value will increase", "It will become legal tender", "It will not be used in transactions", "It will transform into digital currency"],
+        "answer": 2,
+        "explanation": "नोट्स में बताया गया है कि साख मुद्रा का मूल्य लोगों के विश्वास पर आधारित होता है। यदि विश्वास खो जाता है, तो इसे लेन-देन में स्वीकार नहीं किया जाएगा। यह प्रश्न कठिन है क्योंकि यह साख मुद्रा की कार्यप्रणाली और सामाजिक विश्वास के बीच संबंध को समझने की मांग करता है।",
+        "explanation_en": "The notes state that fiduciary money’s value is based on people’s trust. If trust is lost, it will not be accepted in transactions. This question is very hard because it requires understanding the relationship between fiduciary money and societal trust."
+    },
+    {
+        "q": "2016 के विमुद्रीकरण का मुख्य उद्देश्य क्या था, जिसने ₹500 और ₹1000 के नोटों को अवैध किया?",
+        "q_en": "What was the main objective of the 2016 demonetization that declared ₹500 and ₹1000 notes illegal?",
+        "options": ["डिजिटल मुद्रा को बढ़ावा देना", "अवैध गतिविधियों और काले धन को कम करना", "नए नोटों का प्रचलन शुरू करना", "बैंकों की तरलता बढ़ाना"],
+        "options_en": ["Promote digital currency", "Reduce illegal activities and black money", "Introduce new notes", "Increase bank liquidity"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि 8 नवंबर 2016 को ₹500 और ₹1000 के नोटों का विमुद्रीकरण अवैध गतिविधियों और काले धन को कम करने के लिए किया गया था। यह प्रश्न कठिन है क्योंकि अन्य विकल्प भी आंशिक रूप से परिणाम हो सकते हैं, लेकिन मुख्य उद्देश्य अवैध गतिविधियों पर नियंत्रण था।",
+        "explanation_en": "The notes mention that the demonetization of ₹500 and ₹1000 notes on November 8, 2016, aimed to reduce illegal activities and black money. This question is very hard because other options could partially be outcomes, but the primary objective was controlling illegal activities."
+    },
+    {
+        "q": "कौन-सी मुद्रा सबसे अधिक जोखिम भरी मानी जाती है, क्योंकि इसकी कीमत अत्यधिक अस्थिर होती है?",
+        "q_en": "Which currency is considered the riskiest due to its highly volatile price?",
+        "options": ["फिएट मुद्रा", "CBDC", "क्रिप्टोकरेंसी", "पूर्णकाय मुद्रा"],
+        "options_en": ["Fiat money", "CBDC", "Cryptocurrency", "Full-bodied currency"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, क्रिप्टोकरेंसी की कीमत अत्यधिक अस्थिर होती है, जिसके कारण इसे जोखिम भरा माना जाता है। यह प्रश्न कठिन है क्योंकि लोग CBDC को भी डिजिटल होने के कारण अस्थिर मान सकते हैं, लेकिन यह केंद्रीय बैंक द्वारा नियंत्रित होती है।",
+        "explanation_en": "According to the notes, cryptocurrency prices are highly volatile, making them risky. This question is very hard because people might consider CBDC volatile due to its digital nature, but it is controlled by the central bank."
+    },
+    {
+        "q": "यदि कोई लेन-देन ब्लॉकचेन पर आधारित नहीं है और केंद्रीय बैंक द्वारा नियंत्रित है, तो वह किस मुद्रा से संबंधित होगा?",
+        "q_en": "If a transaction is not based on blockchain and is controlled by a central bank, which currency will it be related to?",
+        "options": ["बिटकॉइन", "CBDC", "लाइटकॉइन", "डॉजकॉइन"],
+        "options_en": ["Bitcoin", "CBDC", "Litecoin", "Dogecoin"],
+        "answer": 1,
+        "explanation": "नोट्स में बताया गया है कि CBDC केंद्रीय बैंक द्वारा नियंत्रित होती है और ब्लॉकचेन पर आधारित नहीं होती, जबकि अन्य विकल्प ब्लॉकचेन-आधारित क्रिप्टोकरेंसी हैं। यह प्रश्न कठिन है क्योंकि सभी डिजिटल मुद्राएं ब्लॉकचेन से संबंधित मानी जा सकती हैं।",
+        "explanation_en": "The notes state that CBDC is controlled by the central bank and is not based on blockchain, whereas the other options are blockchain-based cryptocurrencies. This question is very hard because all digital currencies might be assumed to be blockchain-related."
+    },
+    {
+        "q": "सिक्का (संशोधन) अधिनियम, 2011 के तहत सिक्कों की अधिकतम भुगतान सीमा को समझने के लिए क्या जानना आवश्यक है?",
+        "q_en": "What is essential to understand the maximum payment limit for coins under the Coinage (Amendment) Act, 2011?",
+        "options": ["सिक्कों का वजन", "सिक्कों का मूल्यवर्ग", "कानूनी निविदा की सीमा", "सिक्कों की सामग्री"],
+        "options_en": ["Weight of coins", "Denomination of coins", "Legal tender limit", "Material of coins"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, सिक्का (संशोधन) अधिनियम, 2011 के तहत सिक्कों द्वारा अधिकतम ₹2000 तक का भुगतान किया जा सकता है, जो उनकी कानूनी निविदा की सीमा को दर्शाता है। यह प्रश्न कठिन है क्योंकि लोग सिक्कों के भौतिक गुणों को प्राथमिकता दे सकते हैं।",
+        "explanation_en": "According to the notes, the Coinage (Amendment) Act, 2011 specifies that coins can be used for payments up to ₹2000, reflecting their legal tender limit. This question is very hard because people might prioritize the physical properties of coins."
+    },
+    {
+        "q": "CBDC बैकअप न्यूनतम आरक्षण प्रणाली का कार्य क्या है, और यह क्रिप्टोकरेंसी से कैसे भिन्न है?",
+        "q_en": "What is the function of the CBDC backup minimum reserve system, and how is it different from cryptocurrency?",
+        "options": ["यह लेन-देन की गति बढ़ाता है; क्रिप्टोकरेंसी केंद्रीकृत होती है", "यह मुद्रा की वैधता सुनिश्चित करता है; क्रिप्टोकरेंसी विकेन्द्रीकृत होती है", "यह लागत कम करता है; क्रिप्टोकरेंसी केंद्रीकृत होती है", "यह डिजिटल लेन-देन को रोकता है; क्रिप्टोकरेंसी स्थिर होती है"],
+        "options_en": ["It increases transaction speed; cryptocurrency is centralized", "It ensures currency legitimacy; cryptocurrency is decentralized", "It reduces costs; cryptocurrency is centralized", "It prevents digital transactions; cryptocurrency is stable"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, CBDC बैकअप न्यूनतम आरक्षण प्रणाली मुद्रा की वैधता और मूल्य सुनिश्चित करती है, और CBDC केंद्रीय बैंक द्वारा नियंत्रित होती है, जबकि क्रिप्टोकरेंसी विकेन्द्रीकृत होती है। यह प्रश्न कठिन है क्योंकि यह दो अवधारणाओं के बीच सूक्ष्म अंतर को समझने की मांग करता है।",
+        "explanation_en": "According to the notes, the CBDC backup minimum reserve system ensures the currency’s legitimacy and value, and CBDC is controlled by the central bank, whereas cryptocurrency is decentralized. This question is very hard because it requires understanding the subtle differences between the two concepts."
+    },
+    {
+        "q": "भारत में एक रुपये के नोट और सिक्कों को जारी करने की प्रक्रिया में वित्त मंत्रालय की भूमिका क्या है?",
+        "q_en": "What is the role of the Ministry of Finance in issuing one-rupee notes and coins in India?",
+        "options": ["यह डिज़ाइन और छपाई करता है", "यह केवल हस्ताक्षर प्रदान करता है", "यह जारी करने और प्रबंधन का कार्य करता है", "यह केवल अनुमोदन देता है"],
+        "options_en": ["It designs and prints", "It only provides signatures", "It issues and manages", "It only provides approval"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, वित्त मंत्रालय एक रुपये के नोट और सिक्के जारी करता है और उनके प्रबंधन के लिए जिम्मेदार है, जिन पर वित्त सचिव के हस्ताक्षर होते हैं। यह प्रश्न कठिन है क्योंकि लोग RBI की भूमिका के साथ भ्रमित हो सकते हैं।",
+        "explanation_en": "According to the notes, the Ministry of Finance issues and manages one-rupee notes and coins, which bear the signature of the Finance Secretary. This question is very hard because people might confuse it with the role of the RBI."
+    },
+    {
+        "q": "यदि कोई मुद्रा कानूनी निविदा है, लेकिन सीमित वैधाविक निविदा के रूप में वर्गीकृत है, तो इसका क्या अर्थ है?",
+        "q_en": "If a currency is legal tender but classified as limited legal tender, what does it mean?",
+        "options": ["इसे सभी लेन-देन में स्वीकार करना अनिवार्य है", "इसे केवल विशिष्ट मूल्यवर्ग में स्वीकार किया जा सकता है", "इसे एक निश्चित भुगतान सीमा तक स्वीकार किया जा सकता है", "इसे केवल डिजिटल लेन-देन में उपयोग किया जा सकता है"],
+        "options_en": ["It must be accepted in all transactions", "It can only be accepted in specific denominations", "It can be accepted up to a certain payment limit", "It can only be used in digital transactions"],
+        "answer": 2,
+        "explanation": "नोट्स के अनुसार, सीमित वैधाविक निविदा का अर्थ है कि कुछ सिक्कों या नोटों को एक निश्चित भुगतान सीमा तक स्वीकार किया जा सकता है, जैसे सिक्का (संशne) अधिनियम, 2011 के तहत ₹2000 तक। यह प्रश्न कठिन है क्योंकि यह कानूनी निविदा की बारीकियों को समझने की मांग करता है।",
+        "explanation_en": "According to the notes, limited legal tender means certain coins or notes can be accepted up to a specified payment limit, such as ₹2000 under the Coinage (Amendment) Act, 2011. This question is very hard because it requires understanding the nuances of legal tender."
+    },
+    {
+        "q": "क्रिप्टोकरेंसी माइनिंग की प्रक्रिया को ऊर्जा-गहन क्यों माना जाता है?",
+        "q_en": "Why is the cryptocurrency mining process considered energy-intensive?",
+        "options": ["क्योंकि यह ब्लॉकचेन पर आधारित नहीं है", "क्योंकि यह गणना-आधारित प्रक्रिया है", "क्योंकि यह केंद्रीय बैंक द्वारा नियंत्रित है", "क्योंकि यह कागज से बनती है"],
+        "options_en": ["Because it is not based on blockchain", "Because it is a computational process", "Because it is controlled by the central bank", "Because it is made from paper"],
+        "answer": 1,
+        "explanation": "नोट्स में बताया गया है कि क्रिप्टोकरेंसी माइनिंग एक गणना-आधारित प्रक्रिया है, जो नए सिक्के उत्पन्न करने और लेन-देन सत्यापित करने के लिए ऊर्जा की अधिक खपत करती है। यह प्रश्न कठिन है क्योंकि यह तकनीकी प्रक्रिया को समझने की आवश्यकता है।",
+        "explanation_en": "The notes state that cryptocurrency mining is a computational process that consumes significant energy to generate new coins and verify transactions. This question is very hard because it requires understanding the technical process."
+    },
+    {
+        "q": "भारत में सिक्कों की ढलाई के लिए चार स्थान कौन-से हैं, और इनका प्रबंधन कौन करता है?",
+        "q_en": "What are the four locations for minting coins in India, and who manages them?",
+        "options": ["मुंबई, दिल्ली, चेन्नई, कोलकाता; RBI", "मुंबई, हैदराबाद, कोलकाता, नोएडा; SPMCIL", "दिल्ली, हैदराबाद, बेंगलुरु, नोएडा; वित्त मंत्रालय", "मुंबई, कोलकाता, चेन्नई, नोएडा; RBI"],
+        "options_en": ["Mumbai, Delhi, Chennai, Kolkata; RBI", "Mumbai, Hyderabad, Kolkata, Noida; SPMCIL", "Delhi, Hyderabad, Bengaluru, Noida; Ministry of Finance", "Mumbai, Kolkata, Chennai, Noida; RBI"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, भारत में सिक्के मुंबई, हैदराबाद, कोलकाता, और नोएडा में ढाले जाते हैं, और इनका प्रबंधन SPMCIL द्वारा किया जाता है। यह प्रश्न कठिन है क्योंकि स्थान और प्रबंधन दोनों को याद रखना चुनौतीपूर्ण है।",
+        "explanation_en": "According to the notes, coins in India are minted in Mumbai, Hyderabad, Kolkata, and Noida, and these are managed by SPMCIL. This question is very hard because remembering both the locations and management is challenging."
+    },
+    {
+        "q": "यदि कोई मुद्रा फिएट मुद्रा है, तो यह सरकार को लचीलापन कैसे प्रदान करती है?",
+        "q_en": "If a currency is fiat money, how does it provide flexibility to the government?",
+        "options": ["यह सोने के भंडार पर आधारित होती है", "यह मुद्रास्फीति और मंदी के प्रबंधन में मदद करती है", "यह ब्लॉकचेन तकनीक पर आधारित होती है", "यह केवल डिजिटल लेन-देन के लिए उपयोगी है"],
+        "options_en": ["It is based on gold reserves", "It helps manage inflation and recession", "It is based on blockchain technology", "It is only useful for digital transactions"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, फिएट मुद्रा सरकार और केंद्रीय बैंक को ब्याज दरों और ऋण आपूर्ति के माध्यम से मुद्रास्फीति और मंदी का प्रबंधन करने में लचीलापन प्रदान करती है। यह प्रश्न कठिन है क्योंकि यह आर्थिक नीति के गहन समझ की मांग करता है।",
+        "explanation_en": "According to the notes, fiat money provides flexibility to the government and central bank by enabling them to manage inflation and recession through interest rates and credit supply. This question is very hard because it requires a deep understanding of economic policy."
+    },
+    {
+        "q": "थोक CBDC और खुदरा CBDC के बीच मुख्य अंतर क्या है, और इसका उपयोग कैसे भिन्न है?",
+        "q_en": "What is the main difference between wholesale CBDC and retail CBDC, and how do their uses differ?",
+        "options": ["थोक CBDC छोटे लेन-देन के लिए, खुदरा CBDC बड़े लेन-देन के लिए", "थोक CBDC इंटरबैंक सेटलमेंट के लिए, खुदरा CBDC P2P भुगतान के लिए", "थोक CBDC डिजिटल, खुदरा CBDC भौतिक", "थोक CBDC विकेन्द्रीकृत, खुदरा CBDC केंद्रीकृत"],
+        "options_en": ["Wholesale CBDC for small transactions, retail CBDC for large transactions", "Wholesale CBDC for interbank settlements, retail CBDC for P2P payments", "Wholesale CBDC is digital, retail CBDC is physical", "Wholesale CBDC is decentralized, retail CBDC is centralized"],
+        "answer": 1,
+        "explanation": "नोट्स में बताया गया है कि थोक CBDC का उपयोग बड़े वित्तीय लेन-देन और इंटरबैंक सेटलमेंट के लिए होता है, जबकि खुदरा CBDC का उपयोग P2P भुगतान और खुदरा खरीदारी के लिए होता है। यह प्रश्न कठिन है क्योंकि यह CBDC के दो रूपों के बीच सूक्ष्म अंतर को समझने की मांग करता है।",
+        "explanation_en": "The notes state that wholesale CBDC is used for large financial transactions and interbank settlements, while retail CBDC is used for P2P payments and retail purchases. This question is very hard because it requires understanding the subtle differences between the two forms of CBDC."
+    },
+    {
+        "q": "विमुद्रीकरण के बाद अवैध नोटों का उपयोग क्यों प्रतिबंधित हो जाता है, और इसका आर्थिक प्रभाव क्या हो सकता है?",
+        "q_en": "Why is the use of illegal notes restricted after demonetization, and what could be its economic impact?",
+        "options": ["क्योंकि वे डिजिटल हो जाते हैं; बैंकों में जमा बढ़ता है", "क्योंकि वे कानूनी निविदा नहीं रहते; अवैध गतिविधियों में कमी", "क्योंकि उनका मूल्य बढ़ जाता है; मुद्रास्फीति बढ़ती है", "क्योंकि वे ब्लॉकचेन पर आधारित होते हैं; डिजिटल लेन-देन बढ़ता है"],
+        "options_en": ["Because they become digital; bank deposits increase", "Because they are no longer legal tender; illegal activities decrease", "Because their value increases; inflation rises", "Because they are blockchain-based; digital transactions increase"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, विमुद्रीकरण के बाद नोट अवैध निविदा बन जाते हैं और लेन-देन में उपयोग नहीं किए जा सकते, जिससे अवैध गतिविधियों और काले धन में कमी आती है। यह प्रश्न कठिन है क्योंकि यह कानूनी और आर्थिक प्रभाव दोनों को समझने की मांग करता है।",
+        "explanation_en": "According to the notes, after demonetization, notes become illegal tender and cannot be used in transactions, reducing illegal activities and black money. This question is very hard because it requires understanding both legal and economic impacts."
+    },
+    {
+        "q": "SPMCIL की स्थापना से पहले सिक्कों और नोटों की छपाई और ढलाई का प्रबंधन कौन करता था?",
+        "q_en": "Who managed the printing of notes and minting of coins before the establishment of SPMCIL?",
+        "options": ["भारतीय रिज़र्व बैंक", "वित्त मंत्रालय", "निजी कंपनियां", "राज्य सरकारें"],
+        "options_en": ["Reserve Bank of India", "Ministry of Finance", "Private companies", "State governments"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि SPMCIL के गठन (2006) से पहले, वित्त मंत्रालय के अधीन नौ इकाइयां सिक्कों की ढलाई और नोटों की छपाई का प्रबंधन करती थीं। यह प्रश्न कठिन है क्योंकि यह ऐतिहासिक संदर्भ को समझने की मांग करता है।",
+        "explanation_en": "The notes mention that before the formation of SPMCIL in 2006, nine units under the Ministry of Finance managed the minting of coins and printing of notes. This question is very hard because it requires understanding historical context."
+    },
+    {
+        "q": "यदि कोई मुद्रा पूर्णकाय मुद्रा है, तो इसका उपयोग आधुनिक अर्थव्यवस्था में क्यों सीमित है?",
+        "q_en": "If a currency is full-bodied, why is its use limited in a modern economy?",
+        "options": ["क्योंकि यह डिजिटल रूप में उपलब्ध नहीं है", "क्योंकि इसका सामग्री मूल्य उत्पादन लागत को बढ़ाता है", "क्योंकि यह सरकार द्वारा नियंत्रित नहीं है", "क्योंकि यह ब्लॉकचेन पर आधारित है"],
+        "options_en": ["Because it is not available in digital form", "Because its material value increases production costs", "Because it is not controlled by the government", "Because it is based on blockchain"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, पूर्णकाय मुद्रा (जैसे सोने और चांदी के सिक्के) का अंकित मूल्य और सामग्री मूल्य समान होता है, जिसके कारण इसका उत्पादन महंगा होता है और आधुनिक अर्थव्यवस्था में इसका उपयोग सीमित है। यह प्रश्न कठिन है क्योंकि यह आर्थिक व्यवहार्यता को समझने की मांग करता है।",
+        "explanation_en": "According to the notes, full-bodied currency (like gold and silver coins) has equal face and material value, making its production costly and limiting its use in modern economies. This question is very hard because it requires understanding economic feasibility."
+    },
+    {
+        "q": "भारत में CBDC के पायलट प्रोजेक्ट की शुरुआत के समय और उपयोग को सही ढंग से पहचानें।",
+        "q_en": "Identify the correct timeline and use of the CBDC pilot project in India.",
+        "options": ["2020: खुदरा CBDC; 2021: थोक CBDC", "2022: थोक CBDC; 2023: खुदरा CBDC", "2021: थोक CBDC; 2022: खुदरा CBDC", "2023: थोक CBDC; 2024: खुदरा CBDC"],
+        "options_en": ["2020: Retail CBDC; 2021: Wholesale CBDC", "2022: Wholesale CBDC; 2023: Retail CBDC", "2021: Wholesale CBDC; 2022: Retail CBDC", "2023: Wholesale CBDC; 2024: Retail CBDC"],
+        "answer": 1,
+        "explanation": "नोट्स के अनुसार, भारत में थोक CBDC का पायलट प्रोजेक्ट 2022 में और खुदरा CBDC का 2023 में शुरू हुआ। यह प्रश्न कठिन है क्योंकि सटीक समयरेखा और उपयोग को याद रखना चुनौतीपूर्ण है।",
+        "explanation_en": "According to the notes, the pilot project for wholesale CBDC started in 2022, and for retail CBDC in 2023. This question is very hard because remembering the exact timeline and use is challenging."
+    },
+    {
+        "q": "कौन-सी मुद्रा का उपयोग अवैध गतिविधियों के लिए हो सकता है, और इसका कारण क्या है?",
+        "q_en": "Which currency can be used for illegal activities, and what is the reason?",
+        "options": ["CBDC; क्योंकि यह केंद्रीकृत है", "क्रिप्टोकरेंसी; क्योंकि यह अस्थिर और गुमनाम है", "फिएट मुद्रा; क्योंकि यह सामग्री मूल्य पर आधारित है", "पूर्णकाय मुद्रा; क्योंकि यह महंगी है"],
+        "options_en": ["CBDC; because it is centralized", "Cryptocurrency; because it is volatile and anonymous", "Fiat money; because it is based on material value", "Full-bodied currency; because it is expensive"],
+        "answer": 1,
+        "explanation": "नोट्स में बताया गया है कि क्रिप्टोकरेंसी की अस्थिरता और गुमनामी के कारण इसका उपयोग अवैध गतिविधियों, जैसे हथियारों और मनी लॉन्ड्रिंग, के लिए हो सकता है। यह प्रश्न कठिन है क्योंकि यह मुद्रा की विशेषताओं और उनके दुरुपयोग को समझने की मांग करता है।",
+        "explanation_en": "The notes state that due to the volatility and anonymity of cryptocurrency, it can be used for illegal activities like arms dealing and money laundering. This question is very hard because it requires understanding the characteristics of currency and their potential misuse."
+    },
+   
+    {
+        "q": "विलियम स्टेनली जेवन्स ने अपनी पुस्तक में मुद्रा को कैसे परिभाषित किया?",
+        "q_en": "How did William Stanley Jevons define money in his book?",
+        "options": ["विनिमय का माध्यम", "चार कार्यों का समूह", "मूल्य का भंडार", "लेखांकन की इकाई"],
+        "options_en": ["Medium of exchange", "Group of four functions", "Store of value", "Unit of account"],
+        "answer": 1,
+        "explanation": "नोट्स में जेवन्स की पुस्तक, मनी एंड द मैकेनिज्म ऑफ एक्सचेंज (1875), का हवाला दिया गया है, जिसमें मुद्रा को चार कार्यों के समूह के रूप में परिभाषित किया गया है: विनिमय का माध्यम, मूल्य का भंडार, लेखांकन की इकाई, और आस्थगित भुगतान का मानक।",
+        "explanation_en": "The notes quote Jevons’ book, Money and the Mechanism of Exchange (1875), stating money as a group of four functions: medium of exchange, store of value, unit of account, and standard of deferred payment."
+    },
+    {
+        "q": "वास्तविक जीडीपी और नाममात्र जीडीपी में मुख्य अंतर क्या है?",
+        "q_en": "What is the main difference between Real GDP and Nominal GDP?",
+        "options": ["वास्तविक जीडीपी में मुद्रास्फीति समायोजित होती है", "नाममात्र जीडीपी में मूल्यह्रास शामिल होता है", "वास्तविक जीडीपी केवल वस्तुओं को मापता है", "नाममात्र जीडीपी आधार वर्ष पर आधारित होता है"],
+        "options_en": ["Real GDP is adjusted for inflation", "Nominal GDP includes depreciation", "Real GDP measures only goods", "Nominal GDP is based on the base year"],
+        "answer": 0,
+        "explanation": "नोट्स में बताया गया है कि वास्तविक जीडीपी को जीडीपी डिफ्लेटर का उपयोग करके मुद्रास्फीति के लिए समायोजित किया जाता है, जबकि नाममात्र जीडीपी नहीं। विकल्प b गलत है क्योंकि मूल्यह्रास NDP से संबंधित है, न कि नाममात्र जीडीपी से। विकल्प c गलत है क्योंकि वास्तविक जीडीपी में सेवाएं शामिल हैं, और विकल्प d गलत है क्योंकि नाममात्र जीडीपी वर्तमान कीमतों का उपयोग करता है, न कि आधार वर्ष का।",
+        "explanation_en": "The notes explain that Real GDP is adjusted for inflation using the GDP deflator, while Nominal GDP is not. Option b is incorrect as depreciation relates to NDP, not Nominal GDP. Option c is wrong as Real GDP includes services, and option d is incorrect as Nominal GDP uses current prices, not a base year."
+    },
+    {
+        "q": "आधार वर्ष को संशोधित करने का एक कारण क्या है?",
+        "q_en": "What is one reason for revising the base year?",
+        "options": ["मुद्रास्फीति को बढ़ाने के लिए", "अर्थव्यवस्था की संरचना में परिवर्तन को दर्शाने के लिए", "कर राजस्व को कम करने के लिए", "जीडीपी को कम करने के लिए"],
+        "options_en": ["To increase inflation", "To reflect changes in the economy’s structure", "To reduce tax revenue", "To reduce GDP"],
+        "answer": 1,
+        "explanation": "नोट्स में आधार वर्ष को संशोधित करने के कारणों में अर्थव्यवस्था की संरचना में परिवर्तन (जैसे, उपभोग पैटर्न, क्षेत्रीय योगदान) को प्रतिबिंबित करना शामिल है। अन्य विकल्प आधार वर्ष संशोधन के उद्देश्य से असंबंधित हैं।",
+        "explanation_en": "The notes list reasons for revising the base year, including reflecting structural changes in the economy (e.g., consumption patterns, sectoral contributions). Other options are unrelated to the purpose of base year revision."
+    },
+    {
+        "q": "विशेष डेटा प्रसार मानक (एसडीडीएस) का उद्देश्य क्या है?",
+        "q_en": "What is the purpose of the Special Data Dissemination Standard (SDDS)?",
+        "options": ["कर संग्रहण को बढ़ाना", "डेटा पारदर्शिता को बढ़ाना", "मुद्रास्फीति को नियंत्रित करना", "बेरोजगारी को कम करना"],
+        "options_en": ["Increase tax collection", "Enhance data transparency", "Control inflation", "Reduce unemployment"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि एसडीडीएस का उद्देश्य डेटा पारदर्शिता को बढ़ाना और आर्थिक परिस्थितियों का आकलन करने के लिए पर्याप्त जानकारी प्रदान करना है। अन्य विकल्प उद्देश्यों के रूप में उल्लिखित नहीं हैं।",
+        "explanation_en": "The notes state that SDDS aims to enhance data transparency and provide sufficient information for assessing economic conditions. Other options are not mentioned as objectives."
+    },
+    {
+        "q": "शुद्ध घरेलू उत्पाद (NDP) में मूल्यह्रास क्यों घटाया जाता है?",
+        "q_en": "Why is depreciation subtracted in calculating Net Domestic Product (NDP)?",
+        "options": ["करों को समायोजित करने के लिए", "पूंजी की खपत को ध्यान में रखने के लिए", "मुद्रास्फीति को समायोजित करने के लिए", "सब्सिडी को शामिल करने के लिए"],
+        "options_en": ["To adjust for taxes", "To account for capital consumption", "To adjust for inflation", "To include subsidies"],
+        "answer": 1,
+        "explanation": "नोट्स में बताया गया है कि मूल्यह्रास, या पूंजीगत उपभोग भत्ता, को जीडीपी से घटाया जाता है ताकि उत्पादन के दौरान खपत की गई पूंजी को ध्यान में रखा जाए। अन्य विकल्प असंबंधित हैं।",
+        "explanation_en": "The notes explain that depreciation, or capital consumption allowance, is subtracted from GDP to calculate NDP to account for the capital consumed during production. Other options are irrelevant."
+    },
+    {
+        "q": "बाजार मूल्य पर एनडीपी की गणना कैसे की जाती है?",
+        "q_en": "How is NDP at market price calculated?",
+        "options": ["कारक लागत पर एनडीपी + अप्रत्यक्ष कर - सब्सिडी", "कारक लागत पर एनडीपी - अप्रत्यक्ष कर + सब्सिडी", "कारक लागत पर एनडीपी + अप्रत्यक्ष कर + सब्सिडी", "कारक लागत पर एनडीपी - अप्रत्यक्ष कर - सब्सिडी"],
+        "options_en": ["NDP at factor cost + Indirect taxes - Subsidies", "NDP at factor cost - Indirect taxes + Subsidies", "NDP at factor cost + Indirect taxes + Subsidies", "NDP at factor cost - Indirect taxes - Subsidies"],
+        "answer": 0,
+        "explanation": "नोट्स में सूत्र दिया गया है: बाजार मूल्य पर एनडीपी = कारक लागत पर एनडीपी + अप्रत्यक्ष कर - सब्सिडी। अन्य विकल्प गलत हैं क्योंकि वे इस सूत्र से मेल नहीं खाते।",
+        "explanation_en": "The notes provide the formula: NDP at market price = NDP at factor cost + Indirect taxes - Subsidies. Other options are incorrect as they do not align with this formula."
+    },
+    {
+        "q": "राष्ट्रीय आय की गणना में आय विधि में क्या शामिल होता है?",
+        "q_en": "What is included in the income method for calculating National Income?",
+        "options": ["सभी व्यय", "सभी उत्पादन लागत", "सभी आय (वेतन, ब्याज, लाभ)", "केवल कर राजस्व"],
+        "options_en": ["All expenditures", "All production costs", "All incomes (wages, interest, profits)", "Only tax revenue"],
+        "answer": 2,
+        "explanation": "नोट्स में कहा गया है कि आय विधि राष्ट्रीय आय की गणना सभी आयों (वेतन, ब्याज, लाभ) को जोड़कर करती है। अन्य विकल्प व्यय या लागत विधियों को संदर्भित करते हैं।",
+        "explanation_en": "The notes state that the income method calculates national income by summing all incomes (wages, interest, profits) from production. Other options refer to expenditure or cost methods."
+    },
+    {
+        "q": "कारक लागत में क्या शामिल नहीं होता?",
+        "q_en": "What is not included in factor cost?",
+        "options": ["श्रम की लागत", "अप्रत्यक्ष कर", "पूंजी पर ब्याज", "भूति की लागत"],
+        "options_en": ["Cost of labor", "Indirect taxes", "Interest on capital", "Cost of land"],
+        "answer": 1,
+        "explanation": "नोट्स में कारक लागत को उत्पादन के कारकों (श्रम, पूंजी, भूमि, कच्चा माल) की लागत के रूप में परिभाषित किया गया है, जिसमें अप्रत्यक्ष कर शामिल नहीं हैं, जो बाजार मूल्य की गणना में जोड़े जाते हैं। अन्य विकल्प कारक लागत में शामिल हैं।",
+        "explanation_en": "The notes define factor cost as the cost of production factors (labor, capital, land, raw materials), excluding indirect taxes, which are added to calculate market price. Other options are included in factor cost."
+    },
+    {
+        "q": "निजी आय में क्या शामिल होता है?",
+        "q_en": "What is included in private income?",
+        "options": ["केवल सरकारी आय", "घरेलू उत्पाद से आय + विदेश से शुद्ध कारक आय + हस्तांतरण आय", "केवल कर राजस्व", "केवल कॉर्पोरेट लाभ"],
+        "options_en": ["Only government income", "Income from domestic production + Net factor income from abroad + Transfer payments", "Only tax revenue", "Only corporate profits"],
+        "answer": 1,
+        "explanation": "नोट्स में निजी आय को घरेलू उत्पादन से आय + विदेश से शुद्ध कारक आय + हस्तांतरण भुगतान के रूप में परिभाषित किया गया है। अन्य विकल्प गलत या अधूरे हैं।",
+        "explanation_en": "The notes define private income as income from domestic production + net factor income from abroad + transfer payments. Other options are incorrect or incomplete."
+    },
+    {
+        "q": "हस्तांतरण भुगतान राष्ट्रीय आय का हिस्सा क्यों नहीं हैं?",
+        "q_en": "Why are transfer payments not part of National Income?",
+        "options": ["क्योंकि वे करों का हिस्सा हैं", "क्योंकि वे एकतरफा होते हैं और वस्तुओं/सेवाओं का उत्पादन नहीं करते", "क्योंकि वे केवल निजी क्षेत्र से आते हैं", "क्योंकि वे मुद्रास्फीति को प्रभावित करते हैं"],
+        "options_en": ["Because they are part of taxes", "Because they are unilateral and do not produce goods/services", "Because they come only from the private sector", "Because they affect inflation"],
+        "answer": 1,
+        "explanation": "नोट्स में बताया गया है कि हस्तांतरण भुगतान एकतरफा होते हैं और वस्तुओं या सेवाओं के उत्पादन में योगदान नहीं करते, इसलिए इन्हें राष्ट्रीय आय से बाहर रखा जाता है। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes explain that transfer payments are unilateral and do not result in the production of goods or services, hence excluded from national income. Other options are incorrect."
+    },
+    {
+        "q": "सार्वजनिक आय का प्राथमिक स्रोत क्या है?",
+        "q_en": "What is the primary source of public income?",
+        "options": ["कर", "शुल्क", "जुर्माना", "विदेशी सहायता"],
+        "options_en": ["Taxes", "Fees", "Fines", "Foreign aid"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है कि कर सार्वजनिक आय का प्राथमिक स्रोत हैं, जो सार्वजनिक सेवाओं और बुनियादी ढांचे को वित्तपोषित करने के लिए उपयोग किए जाते हैं। अन्य स्रोत द्वितीयक हैं।",
+        "explanation_en": "The notes state that taxes are the primary source of public income, used to fund public services and infrastructure. Other sources are secondary."
+    },
+    {
+        "q": "व्यक्तिगत आय (PI) की गणना में क्या घटाया जाता है?",
+        "q_en": "What is subtracted in calculating Personal Income (PI)?",
+        "options": ["हस्तांतरण भुगतान", "कॉर्पोरेट आय कर और अविभाजित लाभ", "अप्रत्यक्ष कर", "सब्सिडी"],
+        "options_en": ["Transfer payments", "Corporate income tax and undistributed profits", "Indirect taxes", "Subsidies"],
+        "answer": 1,
+        "explanation": "नोट्स में सूत्र दिया गया है: PI = NI - कॉर्पोरेट आय कर - अविभाजित कॉर्पोरेट लाभ - सामाजिक सुरक्षा अंशदान + हस्तांतरण भुगतान। विकल्प b सही है; अन्य घटाए नहीं जाते।",
+        "explanation_en": "The notes provide the formula: PI = NI - Corporate income tax - Undistributed corporate profits - Social security contributions + Transfer payments. Option b is correct; others are not subtracted."
+    },
+    {
+        "q": "सकल मूल्य वर्धन (GVA) का महत्व क्या है?",
+        "q_en": "What is the importance of Gross Value Added (GVA)?",
+        "options": ["केवल कर राजस्व को मापता है", "विभिन्न क्षेत्रों के योगदान को दर्शाता है", "केवल मुद्रास्फीति को मापता है", "केवल निर्यात को मापता है"],
+        "options_en": ["Measures only tax revenue", "Reflects contributions of different sectors", "Measures only inflation", "Measures only exports"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि GVA विभिन्न क्षेत्रों और उद्योगों के अर्थव्यवस्था में योगदान को पहचानने में मदद करता है। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes highlight that GVA helps identify the contribution of different sectors and industries to the economy. Other options are incorrect."
+    },
+    {
+        "q": "जीडीपी और जीवीए के बीच संबंध क्या है?",
+        "q_en": "What is the relationship between GDP and GVA?",
+        "options": ["GDP = GVA + उत्पादों पर कर - सब्सिडी", "GDP = GVA - उत्पादों पर कर + सब्सिडी", "GDP = GVA + उत्पादों पर कर + सब्सिडी", "GDP = GVA - उत्पादों पर कर - सब्सिडी"],
+        "options_en": ["GDP = GVA + Taxes on products - Subsidies", "GDP = GVA - Taxes on products + Subsidies", "GDP = GVA + Taxes on products + Subsidies", "GDP = GVA - Taxes on products - Subsidies"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है: जीडीपी = जीवीए + उत्पादों पर कर - उत्पादों पर सब्सिडी। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes state: GDP = GVA + Taxes on products - Subsidies. Other options are incorrect."
+    },
+    {
+        "q": "प्राथमिक क्षेत्र की मुख्य भूमिका क्या है?",
+        "q_en": "What is the main role of the primary sector?",
+        "options": ["तैयार माल का उत्पादन", "कच्चे माल की आपूर्ति", "सेवाओं का प्रावधान", "बुनियादी ढांचे का निर्माण"],
+        "options_en": ["Production of finished goods", "Supply of raw materials", "Provision of services", "Construction of infrastructure"],
+        "answer": 1,
+        "explanation": "नोट्स में प्राथमिक क्षेत्र को कच्चे माल (जैसे, फसलें, खनिज) की आपूर्ति करने के रूप में वर्णित किया गया है, जो द्वितीयक क्षेत्र के लिए प्रसंस्करण के लिए उपयोगी है। अन्य विकल्प द्वितीयक या तृतीयक क्षेत्रों से संबंधित हैं।",
+        "explanation_en": "The notes describe the primary sector as supplying raw materials (e.g., crops, minerals) for secondary sector processing. Other options belong to secondary or tertiary sectors."
+    },
+    {
+        "q": "द्वितीयक क्षेत्र में कौन सी गतिविधि शामिल नहीं है?",
+        "q_en": "Which activity is not included in the secondary sector?",
+        "options": ["विनिर्माण", "निर्माण", "स्वास्थ्य सेवाएं", "बिजली उत्पादन"],
+        "options_en": ["Manufacturing", "Construction", "Health services", "Electricity production"],
+        "answer": 2,
+        "explanation": "नोट्स में विनिर्माण, निर्माण, और उपयोगिताओं (जैसे, बिजली) को द्वितीयक क्षेत्र में वर्गीकृत किया गया है, जबकि स्वास्थ्य सेवाएं तृतीयक क्षेत्र से संबंधित हैं।",
+        "explanation_en": "The notes categorize manufacturing, construction, and utilities (e.g., electricity) in the secondary sector, while health services belong to the tertiary sector."
+    },
+    {
+        "q": "तृतीयक क्षेत्र में क्या शामिल है?",
+        "q_en": "What is included in the tertiary sector?",
+        "options": ["खेती और खनन", "विनिर्माण और निर्माण", "स्वास्थ्य, शिक्षा, और परिवहन", "कच्चा माल उत्पादन"],
+        "options_en": ["Agriculture and mining", "Manufacturing and construction", "Health, education, and transport", "Raw material production"],
+        "answer": 2,
+        "explanation": "नोट्स में स्वास्थ्य, शिक्षा, और परिवहन को तृतीयक (सेवा) क्षेत्र के हिस्से के रूप में सूचीबद्ध किया गया है। अन्य विकल्प प्राथमिक या द्वितीयक क्षेत्रों से संबंधित हैं।",
+        "explanation_en": "The notes list health, education, and transport as part of the tertiary (service) sector. Other options belong to primary or secondary sectors."
+    },
+    {
+        "q": "आधार मूल्य में क्या शामिल होता है?",
+        "q_en": "What is included in basic price?",
+        "options": ["उत्पादन कर शामिल, सब्सिडी नहीं", "उत्पादन कर नहीं, सब्सिडी शामिल", "उत्पादन कर और सब्सिडी दोनों शामिल", "उत्पादन कर और सब्सिडी दोनों नहीं"],
+        "options_en": ["Includes production taxes, excludes subsidies", "Excludes production taxes, includes subsidies", "Includes both production taxes and subsidies", "Excludes both production taxes and subsidies"],
+        "answer": 1,
+        "explanation": "नोट्स में आधार मूल्य को उत्पादन करों को छोड़कर लेकिन उत्पादन सब्सिडी को शामिल करने के रूप में परिभाषित किया गया है। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes define basic price as excluding production taxes but including production subsidies. Other options are incorrect."
+    },
+    {
+        "q": "परिचालन अधिशेष (OS) क्या है?",
+        "q_en": "What is Operating Surplus (OS)?",
+        "options": ["उत्पादन लागत के बाद बची आय", "केवल कर राजस्व", "केवल कर्मचारी मुआवजा", "केवल मध्यवर्ती खपत"],
+        "options_en": ["Income remaining after production costs", "Only tax revenue", "Only employee compensation", "Only intermediate consumption"],
+        "answer": 0,
+        "explanation": "नोट्स में परिचालन अधिशेष को उत्पादन लागत (श्रम लागत और करों को छोड़कर) घटाने के बाद बची आय के रूप में परिभाषित किया गया है, लेकिन संपत्ति आय से पहले।",
+        "explanation_en": "The notes define operating surplus as the income remaining after subtracting production costs (excluding labor costs and taxes) but before accounting for property income."
+    },
+    {
+        "q": "मिश्रित आय क्या है?",
+        "q_en": "What is mixed income?",
+        "options": ["केवल वेतन", "स्व-रोजगारियों की आय (लाभ + वेतन)", "केवल कॉर्पोरेट लाभ", "केवल हस्तांतरण भुगतान"],
+        "options_en": ["Only wages", "Income of self-employed (profits + wages)", "Only corporate profits", "Only transfer payments"],
+        "answer": 1,
+        "explanation": "नोट्स में मिश्रित आय को स्व-रोजगार व्यक्तियों की आय (लाभ + वेतन) के रूप में परिभाषित किया गया है, जो असंगठित क्षेत्र में सामान्य है। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes define mixed income as the income of self-employed individuals acting as both owner and worker, common in the unorganized sector. Other options are incorrect."
+    },
+    {
+        "q": "कर्मचारियों को मुआवजे में क्या शामिल नहीं होता?",
+        "q_en": "What is not included in employee compensation?",
+        "options": ["नकद वेतन", "आवास भत्ता", "अप्रत्यक्ष कर", "बीमा"],
+        "options_en": ["Cash wages", "Housing allowance", "Indirect taxes", "Insurance"],
+        "answer": 2,
+        "explanation": "नोट्स में नकद वेतन, आवास भत्ता, और बीमा को कर्मचारी मुआवजे के हिस्से के रूप में सूचीबद्ध किया गया है, लेकिन अप्रत्यक्ष कर शामिल नहीं हैं क्योंकि वे बाजार मूल्य गणना से संबंधित हैं।",
+        "explanation_en": "The notes list cash wages, housing allowance, and insurance as part of employee compensation, but indirect taxes are not included as they relate to market price calculations."
+    },
+    {
+        "q": "उत्पादन कर की विशेषता क्या है?",
+        "q_en": "What is a characteristic of production tax?",
+        "options": ["उत्पादन की मात्रा पर निर्भर", "उत्पादन शून्य होने पर भी लगता है", "केवल निर्यात पर लागू", "केवल आय पर लागू"],
+        "options_en": ["Depends on production volume", "Imposed even if production is zero", "Applies only to exports", "Applies only to income"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि उत्पादन कर (जैसे, वाहन पंजीकरण, लाइसेंस) उत्पादन की मात्रा की परवाह किए बिना लगाए जाते हैं। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes state that production taxes (e.g., vehicle registration, licenses) are imposed regardless of production volume. Other options are incorrect."
+    },
+    {
+        "q": "जीडीपी में क्या शामिल नहीं होता?",
+        "q_en": "What is not included in GDP?",
+        "options": ["सेकेंड-हैंड सामान", "विनिर्माण", "सेवाएं", "निर्माण"],
+        "options_en": ["Second-hand goods", "Manufacturing", "Services", "Construction"],
+        "answer": 0,
+        "explanation": "नोट्स में सेकेंड-हैंड सामानों को जीडीपी से बाहर रखा गया है क्योंकि वे नया उत्पादन नहीं दर्शाते। विनिर्माण, सेवाएं, और निर्माण शामिल हैं।",
+        "explanation_en": "The notes list second-hand goods as excluded from GDP because they do not represent new production. Manufacturing, services, and construction are included."
+    },
+    {
+        "q": "मुद्रा का उपयोग लेखांकन की इकाई के रूप में कैसे होता है?",
+        "q_en": "How is money used as a unit of account?",
+        "options": ["वस्तुओं को खरीदने के लिए", "मूल्यों को मापने और तुलना करने के लिए", "मूल्य को संग्रहित करने के लिए", "भविष्य में भुगतान के लिए"],
+        "options_en": ["To buy goods", "To measure and compare values", "To store value", "For future payments"],
+        "answer": 1,
+        "explanation": "नोट्स में मुद्रा के लेखांकन की इकाई कार्य को मूल्यों को मापने और तुलना करने (जैसे, सेवाओं की कीमत) के रूप में वर्णित किया गया है। अन्य विकल्प मुद्रा के विभिन्न कार्यों को संदर्भित करते हैं।",
+        "explanation_en": "The notes describe money’s unit of account function as measuring and comparing values (e.g., pricing services). Other options refer to different functions of money."
+    },
+    {
+        "q": "मुद्रा की उच्च तरलता का क्या अर्थ है?",
+        "q_en": "What does high liquidity of money mean?",
+        "options": ["इसे आसानी से अन्य वस्तुओं के लिए बदला जा सकता है", "इसका मूल्य हमेशा बढ़ता है", "यह केवल सरकारी उपयोग के लिए है", "यह केवल दीर्घकालिक निवेश के लिए है"],
+        "options_en": ["It can be easily exchanged for other goods", "Its value always increases", "It is only for government use", "It is only for long-term investment"],
+        "answer": 0,
+        "explanation": "नोट्स में जोर दिया गया है कि मुद्रा की उच्च तरलता इसे वस्तुओं और सेवाओं के लिए आसानी से विनिमय करने की अनुमति देती है, अन्य संपत्तियों जैसे सोने के विपरीत। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes emphasize that money’s high liquidity allows it to be easily exchanged for goods and services, unlike other assets like gold. Other options are incorrect."
+    },
+    {
+        "q": "किस क्षेत्र में इंटरनेट और ई-कॉमर्स शामिल हैं?",
+        "q_en": "Which sector includes internet and e-commerce?",
+        "options": ["प्राथमिक", "द्वितीयक", "तृतीयक", "चतुर्थक"],
+        "options_en": ["Primary", "Secondary", "Tertiary", "Quaternary"],
+        "answer": 2,
+        "explanation": "नोट्स में इंटरनेट और ई-कॉमर्स को तृतीयक (सेवा) क्षेत्र के तहत वर्गीकृत किया गया है, क्योंकि वे ऑनलाइन शॉपिंग प्लेटफॉर्म जैसी सेवाएं प्रदान करते हैं।",
+        "explanation_en": "The notes categorize internet and e-commerce under the tertiary (service) sector, as they involve providing services like online shopping platforms."
+    },
+    {
+        "q": "वास्तविक जीडीपी और जीडीपी डिफ्लेटर के बीच क्या संबंध है?",
+        "q_en": "What is the relationship between Real GDP and GDP Deflator?",
+        "options": ["Real GDP = Nominal GDP × GDP Deflator", "Real GDP = Nominal GDP ÷ GDP Deflator", "GDP Deflator = Real GDP ÷ Nominal GDP", "GDP Deflator = Nominal GDP × Real GDP"],
+        "options_en": ["Real GDP = Nominal GDP × GDP Deflator", "Real GDP = Nominal GDP ÷ GDP Deflator", "GDP Deflator = Real GDP ÷ Nominal GDP", "GDP Deflator = Nominal GDP × Real GDP"],
+        "answer": 1,
+        "explanation": "नोट्स में सूत्र दिया गया है: Real GDP = Nominal GDP ÷ GDP Deflator। विकल्प a एक सामान्य गलती है, क्योंकि गुणा करने से मूल्य बढ़ जाएगा। विकल्प c और d गलत हैं क्योंकि वे जीडीपी डिफ्लेटर की भूमिका को गलत तरीके से दर्शाते हैं।",
+        "explanation_en": "The notes provide the formula: Real GDP = Nominal GDP ÷ GDP Deflator. Option a is a common mistake, as multiplication would inflate the value. Options c and d are incorrect as they misrepresent the GDP deflator’s role."
+    },
+    {
+        "q": "आधार वर्ष का चयन करते समय क्या विशेषता नहीं होनी चाहिए?",
+        "q_en": "What characteristic should a base year not have?",
+        "options": ["सामान्य होना", "सूखा या महामारी जैसी असामान्य घटनाएं", "हाल का होना", "स्थिर आर्थिक स्थिति"],
+        "options_en": ["Being normal", "Unusual events like drought or pandemic", "Being recent", "Stable economic condition"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि आधार वर्ष सामान्य होना चाहिए, जिसमें सूखा या महामारी जैसी असामान्य घटनाएं नहीं होनी चाहिए। विकल्प a, c, और d वांछनीय विशेषताएं हैं, जिससे b सही विकल्प है।",
+        "explanation_en": "The notes state that a base year should be normal, without unusual events like droughts or pandemics. Options a, c, and d are desirable characteristics, making b the correct choice."
+    },
+    {
+        "q": "निम्नलिखित में से कौन सा हस्तांतरण भुगतान का हिस्सा है?",
+        "q_en": "Which of the following is part of transfer payments?",
+        "options": ["कर्मचारी वेतन", "सरकारी पेंशन", "कॉर्पोरेट लाभ", "अप्रत्यक्ष कर"],
+        "options_en": ["Employee wages", "Government pensions", "Corporate profits", "Indirect taxes"],
+        "answer": 1,
+        "explanation": "नोट्स में निहित है कि हस्तांतरण भुगतान एकतरफा हैं (जैसे, पेंशन), जो उत्पादन से संबंधित नहीं हैं। वेतन, लाभ, और कर उत्पादन से संबंधित आय का हिस्सा हैं, जिससे b सही उत्तर है।",
+        "explanation_en": "The notes imply that transfer payments are unilateral (e.g., pensions), not tied to production. Wages, profits, and taxes are part of production-related income, making b the correct answer."
+    },
+    {
+        "q": "निम्नलिखित में से कौन जीडीपी का हिस्सा नहीं है?",
+        "q_en": "Which of the following is not part of GDP?",
+        "options": ["आयात", "निर्यात", "विनिर्माण", "सेवाएं"],
+        "options_en": ["Imports", "Exports", "Manufacturing", "Services"],
+        "answer": 0,
+        "explanation": "नोट्स में स्पष्ट रूप से कहा गया है कि आयात जीडीपी का हिस्सा नहीं हैं, क्योंकि जीडीपी घरेलू उत्पादन को मापता है। निर्यात, विनिर्माण, और सेवाएं शामिल हैं, जिससे a सही विकल्प है।",
+        "explanation_en": "The notes explicitly state that imports are not part of GDP, as GDP measures domestic production. Exports, manufacturing, and services are included, making a the correct choice."
+    },
+    {
+        "q": "शुद्ध राष्ट्रीय उत्पाद (NNP) और शुद्ध घरेलू उत्पाद (NDP) में क्या अंतर है?",
+        "q_en": "What is the difference between NNP and NDP?",
+        "options": ["NNP में विदेशी आय शामिल होती है, NDP में नहीं", "NDP में विदेशी आय शामिल होती है, NNP में नहीं", "NNP में मूल्यह्रास जोड़ा जाता है, NDP में नहीं", "NDP में अप्रत्यक्ष कर शामिल होते हैं, NNP में नहीं"],
+        "options_en": ["NNP includes foreign income, NDP does not", "NDP includes foreign income, NNP does not", "NNP adds depreciation, NDP does not", "NDP includes indirect taxes, NNP does not"],
+        "answer": 0,
+        "explanation": "नोट्स में बताया गया है कि NNP = GNP - मूल्यह्रास, जिसमें विदेश से शुद्ध कारक आय (NFIA) शामिल होती है, जबकि NDP = GDP - मूल्यह्रास, जो पूरी तरह से घरेलू है। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes explain that NNP = GNP - depreciation, where GNP includes net factor income from abroad (NFIA), while NDP = GDP - depreciation, which is purely domestic. Other options are incorrect."
+    },
+    {
+        "q": "किस स्थिति में आधार मूल्य और बाजार मूल्य समान हो सकते हैं?",
+        "q_en": "In which case can basic price and market price be the same?",
+        "options": ["जब अप्रत्यक्ष कर और सब्सिडी शून्य हों", "जब उत्पादन कर शामिल हो", "जब मुद्रास्फीति शून्य हो", "जब जीवीए शून्य हो"],
+        "options_en": ["When indirect taxes and subsidies are zero", "When production taxes are included", "When inflation is zero", "When GVA is zero"],
+        "answer": 0,
+        "explanation": "नोट्स में निहित है कि बाजार मूल्य = आधार मूल्य + अप्रत्यक्ष कर - सब्सिडी। यदि कर और सब्सिडी शून्य हैं, तो आधार मूल्य बाजार मूल्य के बराबर होता है। अन्य विकल्प असंबंधित हैं।",
+        "explanation_en": "The notes imply that market price = basic price + indirect taxes - subsidies. If taxes and subsidies are zero, basic price equals market price. Other options are unrelated."
+    },
+    {
+        "q": "निम्नलिखित में से कौन सा उत्पादन कर का उदाहरण नहीं है?",
+        "q_en": "Which of the following is not an example of a production tax?",
+        "options": ["वाहन पंजीकरण", "आयकर", "ड्राइविंग लाइसेंस", "पेशा पंजीकरण"],
+        "options_en": ["Vehicle registration", "Income tax", "Driving license", "Professional registration"],
+        "answer": 1,
+        "explanation": "नोट्स में वाहन पंजीकरण, ड्राइविंग लाइसेंस, और पेशा पंजीकरण को उत्पादन करों के रूप में सूचीबद्ध किया गया है, जो उत्पादन की मात्रा की परवाह किए बिना लगाए जाते हैं। आयकर उत्पादन कर नहीं है, क्योंकि यह आय पर निर्भर करता है।",
+        "explanation_en": "The notes list vehicle registration, driving licenses, and professional registration as production taxes, imposed regardless of production volume. Income tax is not a production tax, as it depends on income."
+    },
+    {
+        "q": "मुद्रा का कौन सा कार्य भविष्य के भुगतान से संबंधित है?",
+        "q_en": "Which function of money relates to future payments?",
+        "options": ["विनिमय का माध्यम", "मूल्य का भंडार", "लेखांकन की इकाई", "आस्थगित भुगतान का मानक"],
+        "options_en": ["Medium of exchange", "Store of value", "Unit of account", "Standard of deferred payment"],
+        "answer": 3,
+        "explanation": "नोट्स में 'आस्थगित भुगतान का मानक' को उस कार्य के रूप में सूचीबद्ध किया गया है जहां मुद्रा का उपयोग भविष्य के भुगतानों या ऋणों के लिए किया जाता है। अन्य विकल्प विभिन्न कार्यों को संदर्भित करते हैं।",
+        "explanation_en": "The notes list 'standard of deferred payment' as the function where money is used for future payments or debts. Other options refer to different functions."
+    },
+    {
+        "q": "जीवीए और जीडीपी में अंतर क्या है?",
+        "q_en": "What is the difference between GVA and GDP?",
+        "options": ["जीवीए में कर और सब्सिडी शामिल नहीं होते", "जीडीपी में मध्यवर्ती खपत शामिल होती है", "जीवीए केवल प्राथमिक क्षेत्र को मापता है", "जीडीपी में मूल्यह्रास शामिल नहीं होता"],
+        "options_en": ["GVA excludes taxes and subsidies", "GDP includes intermediate consumption", "GVA measures only the primary sector", "GDP excludes depreciation"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है कि जीडीपी = जीवीए + उत्पादों पर कर - सब्सिडी। जीवीए में कर और सब्सिडी शामिल नहीं होते, जबकि जीडीपी में शामिल होते हैं। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes state that GDP = GVA + taxes on products - subsidies. GVA excludes taxes and subsidies, while GDP includes them. Other options are incorrect."
+    },
+    {
+        "q": "निम्नलिखित में से कौन सा फुटलूज़ इंडस्ट्री का उदाहरण है?",
+        "q_en": "Which of the following is an example of a footloose industry?",
+        "options": ["इस्पात उत्पादन", "सूचना प्रौद्योगिकी", "खनन", "कपास उत्पादन"],
+        "options_en": ["Steel production", "Information technology", "Mining", "Cotton production"],
+        "answer": 1,
+        "explanation": "नोट्स में फुटलूज़ उद्योगों को विशिष्ट स्थानों से बंधे नहीं होने के रूप में वर्णित किया गया है (जैसे, आईटी, इलेक्ट्रॉनिक्स)। इस्पात, खनन, और कपास उत्पादन स्थान-निर्भर हैं, जिससे b सही है।",
+        "explanation_en": "The notes describe footloose industries as not tied to specific locations (e.g., IT, electronics). Steel, mining, and cotton production are location-dependent, making b correct."
+    },
+    {
+        "q": "आधार वर्ष को हर 5-10 साल में संशोधित क्यों करना चाहिए?",
+        "q_en": "Why should the base year be revised every 5-10 years?",
+        "options": ["क्योंकि मुद्रास्फीति हर साल बदलती है", "ताकि नवीनतम आर्थिक वास्तविकताओं को प्रतिबिंबित किया जा सके", "क्योंकि कर की दरें बदलती हैं", "क्योंकि जीडीपी हर साल बढ़ता है"],
+        "options_en": ["Because inflation changes every year", "To reflect the latest economic realities", "Because tax rates change", "Because GDP increases every year"],
+        "answer": 1,
+        "explanation": "नोट्स में सुझाव दिया गया है कि आधार वर्ष को हर 5-10 साल में संशोधित करना चाहिए ताकि नवीनतम आर्थिक डेटा, उपभोग पैटर्न, और उद्योग योगदान के साथ संरेखित किया जा सके। अन्य विकल्प प्राथमिक कारण नहीं हैं।",
+        "explanation_en": "The notes suggest revising the base year every 5-10 years to align with the latest economic data, consumption patterns, and industry contributions. Other options are not primary reasons."
+    },
+    {
+        "q": "यदि कोई अर्थव्यवस्था केवल हस्तांतरण भुगतान पर निर्भर हो, तो उसकी राष्ट्रीय आय पर क्या प्रभाव पड़ेगा?",
+        "q_en": "If an economy relies solely on transfer payments, what would be the impact on its National Income?",
+        "options": ["राष्ट्रीय आय बढ़ेगी", "राष्ट्रीय आय अप्रभावित रहेगी", "राष्ट्रीय आय शून्य होगी", "राष्ट्रीय आय घटेगी"],
+        "options_en": ["National income will increase", "National income will remain unaffected", "National income will be zero", "National income will decrease"],
+        "answer": 2,
+        "explanation": "नोट्स में कहा गया है कि हस्तांतरण भुगतान राष्ट्रीय आय का हिस्सा नहीं हैं, क्योंकि वे उत्पादन में शामिल नहीं हैं। यदि कोई अर्थव्यवस्था केवल हस्तांतरण भुगतानों पर निर्भर है, तो कोई उत्पादन नहीं होता, इसलिए राष्ट्रीय आय शून्य होगी।",
+        "explanation_en": "The notes state that transfer payments are not part of national income, as they do not involve production. If an economy only has transfer payments, no production occurs, so national income would be zero."
+    },
+    {
+        "q": "प्राथमिक क्षेत्र के बिना अर्थव्यवस्था कैसे प्रभावित होगी?",
+        "q_en": "How would an economy be affected without the primary sector?",
+        "options": ["सेवाएं बढ़ेंगी", "कच्चे माल की कमी होगी", "बुनियादी ढांचा कमजोर होगा", "कर राजस्व बढ़ेगा"],
+        "options_en": ["Services will increase", "There will be a shortage of raw materials", "Infrastructure will weaken", "Tax revenue will increase"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि प्राथमिक क्षेत्र द्वितीयक क्षेत्र के लिए कच्चे माल की आपूर्ति करता है। इसके बिना, कच्चे माल की कमी से विनिर्माण और आर्थिक विकास बाधित होगा।",
+        "explanation_en": "The notes highlight that the primary sector supplies raw materials for the secondary sector. Without it, raw material shortages would hinder manufacturing and economic growth."
+    },
+    {
+        "q": "मुद्रा की उच्च तरलता का लाभ क्या है?",
+        "q_en": "What is the benefit of money’s high liquidity?",
+        "options": ["यह मूल्य को स्थिर रखता है", "यह वस्तुओं और सेवाओं के आदान-प्रदान को आसान बनाता है", "यह कर संग्रह को बढ़ाता है", "यह मुद्रास्फीति को कम करता है"],
+        "options_en": ["It keeps value stable", "It facilitates the exchange of goods and services", "It increases tax collection", "It reduces inflation"],
+        "answer": 1,
+        "explanation": "नोट्स में जोर दिया गया है कि मुद्रा की उच्च तरलता वस्तुओं और सेवाओं के लिए आसान विनिमय को सक्षम बनाती है, जिससे व्यापार आसान होता है। अन्य विकल्प सीधे संबंधित नहीं हैं।",
+        "explanation_en": "The notes emphasize that money’s high liquidity allows easy exchange for goods and services, facilitating trade. Other options are not directly related."
+    },
+    {
+        "q": "यदि आधार वर्ष बहुत पुराना हो, तो क्या समस्या हो सकती है?",
+        "q_en": "What problem might arise if the base year is too old?",
+        "options": ["जीडीपी की गणना असटीक हो सकती है", "कर राजस्व कम हो जाएगा", "मुद्रास्फीति बढ़ जाएगी", "निर्यात कम हो जाएगा"],
+        "options_en": ["GDP calculation may be inaccurate", "Tax revenue will decrease", "Inflation will increase", "Exports will decrease"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है कि आधार वर्ष को बहुत पुराना नहीं होना चाहिए ताकि वर्तमान आर्थिक वास्तविकताओं को सटीक रूप से प्रतिबिंबित किया जा सके। पुराना आधार वर्ष जीडीपी गणना को असटीक बनाता है।",
+        "explanation_en": "The notes state that a base year should not be too old to reflect current economic realities accurately. An outdated base year leads to inaccurate GDP calculations."
+    },
+    {
+        "q": "हस्तांतरण भुगतान को राष्ट्रीय आय में शामिल न करने का तर्क क्या है?",
+        "q_en": "What is the logic for not including transfer payments in National Income?",
+        "options": ["वे करों का हिस्सा हैं", "वे उत्पादन से उत्पन्न नहीं होते", "वे केवल निजी क्षेत्र से आते हैं", "वे मुद्रास्फीति को प्रभावित करते हैं"],
+        "options_en": ["They are part of taxes", "They are not generated from production", "They come only from the private sector", "They affect inflation"],
+        "answer": 1,
+        "explanation": "नोट्स में बताया गया है कि हस्तांतरण भुगतान एकतरफा होते हैं और वस्तुओं या सेवाओं के उत्पादन से उत्पन्न नहीं होते, इसलिए इन्हें राष्ट्रीय आय से बाहर रखा जाता है।",
+        "explanation_en": "The notes explain that transfer payments are unilateral and do not result from the production of goods or services, unlike wages or profits."
+    },
+    {
+        "q": "जीवीए नीति निर्माताओं के लिए क्यों उपयोगी है?",
+        "q_en": "Why is GVA useful for policymakers?",
+        "options": ["यह कर राजस्व को सीधे मापता है", "यह विभिन्न क्षेत्रों की ताकत और कमजोरियों को दर्शाता है", "यह केवल निर्यात को मापता है", "यह मुद्रास्फीति को नियंत्रित करता है"],
+        "options_en": ["It directly measures tax revenue", "It reflects the strengths and weaknesses of different sectors", "It measures only exports", "It controls inflation"],
+        "answer": 1,
+        "explanation": "नोट्स में उल्लेख है कि जीवीए विभिन्न क्षेत्रों के योगदान को दर्शाता है, जिससे नीति निर्माताओं को विकास रणनीतियों को लक्षित करने में मदद मिलती है। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes highlight that GVA provides insights into sectoral contributions, helping policymakers target development strategies. Other options are incorrect."
+    },
+    {
+        "q": "फुटलूज़ इंडस्ट्री को कहीं भी स्थापित किया जा सकता है, इसका कारण क्या है?",
+        "q_en": "Why can footloose industries be established anywhere?",
+        "options": ["क्योंकि वे कच्चे माल पर निर्भर नहीं हैं", "क्योंकि वे केवल ग्रामीण क्षेत्रों में काम करते हैं", "क्योंकि वे भारी मशीनरी पर निर्भर हैं", "क्योंकि वे केवल सरकारी सब्सिडी पर निर्भर हैं"],
+        "options_en": ["Because they are not dependent on raw materials", "Because they operate only in rural areas", "Because they rely on heavy machinery", "Because they rely only on government subsidies"],
+        "answer": 0,
+        "explanation": "नोट्स में फुटलूज़ उद्योगों को कच्चे माल या विशिष्ट स्थानों से बंधे नहीं होने के रूप में वर्णित किया गया है, जिससे स्थापना में लचीलापन मिलता है (जैसे, आईटी)। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes describe footloose industries as not tied to raw materials or specific locations, allowing flexibility in setup (e.g., IT). Other options are incorrect."
+    },
+    {
+        "q": "यदि कोई अर्थव्यवस्था केवल तृतीयक क्षेत्र पर निर्भर हो, तो क्या होगा?",
+        "q_en": "What would happen if an economy relies solely on the tertiary sector?",
+        "options": ["कच्चे माल का उत्पादन बढ़ेगा", "विनिर्माण गतिविधियां बढ़ेंगी", "कच्चे माल और तैयार माल की कमी हो सकती है", "कर राजस्व शून्य हो जाएगा"],
+        "options_en": ["Raw material production will increase", "Manufacturing activities will increase", "There may be a shortage of raw materials and finished goods", "Tax revenue will be zero"],
+        "answer": 2,
+        "explanation": "नोट्स में बताया गया है कि तृतीयक क्षेत्र सेवाएं प्रदान करता है, न कि कच्चा माल या निर्मित माल, जो प्राथमिक और द्वितीयक क्षेत्रों से आते हैं। केवल सेवाओं पर अत्यधिक निर्भरता से कमी हो सकती है।",
+        "explanation_en": "The notes indicate that the tertiary sector provides services, not raw materials or manufactured goods, which come from primary and secondary sectors. Over-reliance on services could lead to shortages."
+    },
+    {
+        "q": "मुद्रा को मूल्य का भंडार माना जाता है, इसका क्या अर्थ है?",
+        "q_en": "What does it mean that money is a store of value?",
+        "options": ["इसे बिना खर्च किए रखा जा सकता है", "यह हमेशा मूल्य में बढ़ता है", "यह केवल निवेश के लिए उपयोगी है", "यह केवल कर भुगतान के लिए है"],
+        "options_en": ["It can be held without spending", "Its value always increases", "It is useful only for investment", "It is only for tax payments"],
+        "answer": 0,
+        "explanation": "नोट्स में मुद्रा को मूल्य का भंडार बताया गया है, जिसका अर्थ है कि इसे समय के साथ मूल्य खोए बिना रखा जा सकता है (खराब होने वाली वस्तुओं के विपरीत)। अन्य विकल्प इस कार्य को गलत तरीके से दर्शाते हैं।",
+        "explanation_en": "The notes define money as a store of value, meaning it can be held without losing value over time (unlike perishable goods). Other options misrepresent this function."
+    },
+    {
+        "q": "आय विधि से राष्ट्रीय आय की गणना में क्या जोड़ा जाता है?",
+        "q_en": "What is added in the income method for calculating National Income?",
+        "options": ["सभी कर राजस्व", "सभी उत्पादन लागत", "सभी आय (वेतन, ब्याज, लाभ, किराया)", "केवल हस्तांतरण भुगतान"],
+        "options_en": ["All tax revenue", "All production costs", "All incomes (wages, interest, profits, rent)", "Only transfer payments"],
+        "answer": 2,
+        "explanation": "नोट्स में निर्दिष्ट किया गया है कि आय विधि सभी आयों (वेतन, ब्याज, लाभ, किराया) को जोड़कर राष्ट्रीय आय की गणना करती है। हस्तांतरण भुगतान बाहर रखे जाते हैं, और अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes specify that the income method sums all incomes (wages, interest, profits, rent) from production. Transfer payments are excluded, and other options are incorrect."
+    },
+    {
+        "q": "यदि कोई देश SDDS का पालन नहीं करता, तो क्या प्रभाव हो सकता है?",
+        "q_en": "What might be the impact if a country does not follow SDDS?",
+        "options": ["निवेशकों का विश्वास कम हो सकता है", "मुद्रास्फीति बढ़ जाएगी", "जीडीपी बढ़ जाएगा", "कर राजस्व कम हो जाएगा"],
+        "options_en": ["Investor confidence may decrease", "Inflation will increase", "GDP will increase", "Tax revenue will decrease"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है कि SDDS डेटा पारदर्शिता को बढ़ाता है, जिससे निवेशक विश्वास बढ़ता है। गैर-अनुपालन से विश्वास कम हो सकता है, न कि मुद्रास्फीति, जीडीपी, या करों पर सीधा प्रभाव पड़ेगा।",
+        "explanation_en": "The notes state that SDDS enhances data transparency, boosting investor confidence. Non-compliance could reduce trust, not directly affect inflation, GDP, or taxes."
+    },
+    {
+        "q": "द्वितीयक क्षेत्र की गतिविधियां अर्थव्यवस्था में क्यों महत्वपूर्ण हैं?",
+        "q_en": "Why are secondary sector activities important to an economy?",
+        "options": ["वे कच्चे माल प्रदान करते हैं", "वे तैयार माल और बुनियादी ढांचा बनाते हैं", "वे केवल सेवाएं प्रदान करते हैं", "वे कर राजस्व को कम करते हैं"],
+        "options_en": ["They provide raw materials", "They produce finished goods and infrastructure", "They provide only services", "They reduce tax revenue"],
+        "answer": 1,
+        "explanation": "नोट्स में द्वितीयक क्षेत्र को कच्चे माल को तैयार माल में बदलने और बुनियादी ढांचे के निर्माण के लिए जिम्मेदार बताया गया है, जो आर्थिक विकास के लिए महत्वपूर्ण है। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes describe the secondary sector as transforming raw materials into finished goods and building infrastructure, crucial for economic development. Other options are incorrect."
+    },
+    {
+        "q": "मुद्रा का उपयोग आस्थगित भुगतान के मानक के रूप में क्यों किया जाता है?",
+        "q_en": "Why is money used as a standard of deferred payment?",
+        "options": ["क्योंकि यह मूल्य को स्थिर रखता है", "क्योंकि यह भविष्य के लेनदेन को मौद्रिक शब्दों में व्यक्त करता है", "क्योंकि यह केवल सरकारी लेनदेन के लिए है", "क्योंकि यह केवल निर्यात के लिए है"],
+        "options_en": ["Because it keeps value stable", "Because it expresses future transactions in monetary terms", "Because it is only for government transactions", "Because it is only for exports"],
+        "answer": 1,
+        "explanation": "नोट्स में बताया गया है कि आस्थगित भुगतान का मानक के रूप में मुद्रा भविष्य के लेनदेन (जैसे, ऋण) को मौद्रिक शब्दों में व्यक्त करने की अनुमति देता है। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes explain that money as a standard of deferred payment allows future transactions (e.g., loans) to be expressed in monetary terms. Other options are incorrect."
+    },
+    {
+        "q": "यदि जीवीए की गणना में मध्यवर्ती खपत को शामिल कर लिया जाए, तो क्या होगा?",
+        "q_en": "What would happen if intermediate consumption is included in GVA calculation?",
+        "options": ["जीवीए सटीक रहेगा", "जीवीए बढ़ जाएगा", "जीवीए शून्य हो जाएगा", "जीवीए गलत होगा"],
+        "options_en": ["GVA will remain accurate", "GVA will increase", "GVA will be zero", "GVA will be incorrect"],
+        "answer": 3,
+        "explanation": "नोट्स में जीवीए को उत्पादन माइनस मध्यवर्ती खपत के रूप में परिभाषित किया गया है। मध्यवर्ती खपत को शामिल करने से जीवीए गलत होगा, क्योंकि इसे घटाया जाना चाहिए।",
+        "explanation_en": "The notes define GVA as output minus intermediate consumption. Including intermediate consumption would lead to incorrect GVA, as it must be subtracted."
+    },
+    {
+        "q": "यदि नाममात्र जीडीपी बढ़ रही है लेकिन वास्तविक जीडीपी स्थिर है, तो इसका क्या अर्थ है?",
+        "q_en": "If Nominal GDP is increasing but Real GDP is stable, what does it imply?",
+        "options": ["अर्थव्यवस्था में उत्पादन बढ़ रहा है", "मुद्रास्फीति बढ़ रही है", "मूल्यह्रास बढ़ रहा है", "कर राजस्व कम हो रहा है"],
+        "options_en": ["Production in the economy is increasing", "Inflation is increasing", "Depreciation is increasing", "Tax revenue is decreasing"],
+        "answer": 1,
+        "explanation": "नोट्स में बताया गया है कि वास्तविक जीडीपी मुद्रास्फीति के लिए समायोजित करता है। यदि नाममात्र जीडीपी (वर्तमान कीमतों में) बढ़ रही है लेकिन वास्तविक जीडीपी (स्थिर कीमतों में) स्थिर है, तो यह कीमतों में वृद्धि (मुद्रास्फीति) को दर्शाता है, न कि उत्पादन में। अन्य विकल्प असंबंधित हैं।",
+        "explanation_en": "The notes explain that Real GDP adjusts for inflation. If Nominal GDP (current prices) increases but Real GDP (constant prices) is stable, it indicates rising prices (inflation), not production. Other options are unrelated."
+    },
+    {
+        "q": "आधार वर्ष को संशोधित करने से नीति निर्माण में कैसे सुधार होता है?",
+        "q_en": "How does revising the base year improve policymaking?",
+        "options": ["यह कर संग्रह को बढ़ाता है", "यह सटीक जीडीपी डेटा प्रदान करता है", "यह मुद्रास्फीति को कम करता है", "यह निर्यात को बढ़ाता है"],
+        "options_en": ["It increases tax collection", "It provides accurate GDP data", "It reduces inflation", "It increases exports"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि आधार वर्ष को संशोधित करने से डेटा सटीकता में सुधार होता है, जिससे बेहतर लक्षित नीतियां बनाई जा सकती हैं। अन्य विकल्प आधार वर्ष संशोधन के प्रत्यक्ष परिणाम नहीं हैं।",
+        "explanation_en": "The notes state that revising the base year improves data accuracy, enabling better-targeted policies. Other options are not direct outcomes of base year revision."
+    },
+    {
+        "q": "यदि कोई अर्थव्यवस्था केवल प्राथमिक और तृतीयक क्षेत्रों पर निर्भर हो, तो द्वितीयक क्षेत्र की अनुपस्थिति का क्या प्रभाव होगा?",
+        "q_en": "If an economy relies only on primary and tertiary sectors, what would be the impact of the absence of the secondary sector?",
+        "options": ["सेवाओं की मांग बढ़ेगी", "तैयार माल की कमी होगी", "कच्चे माल की आपूर्ति बढ़ेगी", "कर राजस्व शून्य हो जाएगा"],
+        "options_en": ["Demand for services will increase", "There will be a shortage of finished goods", "Supply of raw materials will increase", "Tax revenue will be zero"],
+        "answer": 1,
+        "explanation": "नोट्स में द्वितीयक क्षेत्र को विनिर्माण और निर्माण के लिए जिम्मेदार बताया गया है। इसकी अनुपस्थिति में तैयार माल की कमी होगी, क्योंकि प्राथमिक क्षेत्र के कच्चे माल को प्रसंस्कृत नहीं किया जा सकता।",
+        "explanation_en": "The notes describe the secondary sector as responsible for manufacturing and construction. Its absence would lead to a shortage of finished goods, as primary sector raw materials cannot be processed."
+    },
+    {
+        "q": "शुद्ध राष्ट्रीय उत्पाद (NNP) को राष्ट्रीय आय के रूप में क्यों उपयोग किया जाता है?",
+        "q_en": "Why is Net National Product (NNP) used as a measure of National Income?",
+        "options": ["यह मूल्यह्रास को शामिल नहीं करता", "यह विदेशी आय और मूल्यह्रास को समायोजित करता है", "यह केवल घरेलू उत्पादन को मापता है", "यह मुद्रास्फीति को शामिल करता है"],
+        "options_en": ["It excludes depreciation", "It adjusts for foreign income and depreciation", "It measures only domestic production", "It includes inflation"],
+        "answer": 1,
+        "explanation": "नोट्स में NNP को GNP माइनस मूल्यह्रास के रूप में परिभाषित किया गया है, जिसमें विदेश से शुद्ध कारक आय (NFIA) शामिल होती है। यह पूंजी खपत और विदेशी आय को समायोजित करके कुल आय को दर्शाता है, जीडीपी (विकल्प c) के विपरीत।",
+        "explanation_en": "The notes define NNP as GNP minus depreciation, incorporating net factor income from abroad (NFIA). It reflects total income adjusted for capital consumption and foreign earnings, unlike GDP (option c)."
+    },
+    {
+        "q": "जीवीए की गणना में मध्यवर्ती खपत को क्यों घटाया जाता है?",
+        "q_en": "Why is intermediate consumption subtracted in calculating GVA?",
+        "options": ["डबल काउंटिंग से बचने के लिए", "करों को शामिल करने के लिए", "सब्सिडी को समायोजित करने के लिए", "मुद्रास्फीति को मापने के लिए"],
+        "options_en": ["To avoid double counting", "To include taxes", "To adjust for subsidies", "To measure inflation"],
+        "answer": 0,
+        "explanation": "नोट्स में बताया गया है कि जीवीए की गणना उत्पादन माइनस मध्यवर्ती खपत के रूप में की जाती है ताकि उत्पादन में उपयोग किए गए इनपुट की दोहरी गणना से बचा जा सके। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes explain that GVA is calculated as output minus intermediate consumption to avoid double-counting inputs used in production. Other options are incorrect."
+    },
+    {
+        "q": "यदि कोई देश SDDS का पालन करता है, तो निवेशकों के लिए इसका क्या लाभ है?",
+        "q_en": "If a country follows SDDS, what is the benefit for investors?",
+        "options": ["कम कर दरें", "अधिक पारदर्शी आर्थिक डेटा", "अधिक निर्यात अवसर", "कम मुद्रास्फीति"],
+        "options_en": ["Lower tax rates", "More transparent economic data", "More export opportunities", "Lower inflation"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि SDDS डेटा पारदर्शिता को बढ़ाता है, जिससे निवेशकों को आर्थिक परिस्थितियों का सटीक आकलन करने में मदद मिलती है, जिससे विश्वास बढ़ता है। अन्य विकल्प प्रत्यक्ष लाभ नहीं हैं।",
+        "explanation_en": "The notes state that SDDS enhances data transparency, helping investors assess economic conditions accurately, boosting confidence. Other options are not direct benefits."
+    },
+    {
+        "q": "मुद्रा की ‘आस्थगित भुगतान का मानक’ कार्य आधुनिक अर्थव्यवस्थाओं में क्यों महत्वपूर्ण है?",
+        "q_en": "Why is money’s function as a ‘standard of deferred payment’ important in modern economies?",
+        "options": ["यह उत्पादन लागत को कम करता है", "यह ऋण और भविष्य के समझौतों को सुविधाजनक बनाता है", "यह कर संग्रह को बढ़ाता है", "यह कच्चे माल की आपूर्ति को बढ़ाता है"],
+        "options_en": ["It reduces production costs", "It facilitates loans and future agreements", "It increases tax collection", "It increases the supply of raw materials"],
+        "answer": 1,
+        "explanation": "नोट्स में इस कार्य को भविष्य के लेनदेन (जैसे, ऋण) को मौद्रिक शब्दों में व्यक्त करने के रूप में वर्णित किया गया है, जो क्रेडिट-आधारित अर्थव्यवस्थाओं के लिए महत्वपूर्ण है। अन्य विकल्प असंबंधित हैं।",
+        "explanation_en": "The notes describe this function as enabling future transactions (e.g., loans) to be expressed in monetary terms, crucial for credit-based economies. Other options are unrelated."
+    },
+    {
+        "q": "किसी अर्थव्यवस्था में तृतीयक क्षेत्र का बढ़ता योगदान क्या दर्शाता है?",
+        "q_en": "What does the increasing contribution of the tertiary sector indicate in an economy?",
+        "options": ["कच्चे माल की कमी", "सेवा-आधारित अर्थव्यवस्था की ओर बदलाव", "विनिर्माण में कमी", "कर राजस्व में कमी"],
+        "options_en": ["Shortage of raw materials", "Shift towards a service-based economy", "Decline in manufacturing", "Decrease in tax revenue"],
+        "answer": 1,
+        "explanation": "नोट्स में निहित है कि तृतीयक क्षेत्र (स्वास्थ्य, शिक्षा जैसी सेवाओं) का बढ़ता योगदान सेवा-आधारित अर्थव्यवस्था की ओर बदलाव को दर्शाता है, जो विकसित अर्थव्यवस्थाओं में सामान्य है। अन्य विकल्प जरूरी नहीं कि सही हों।",
+        "explanation_en": "The notes imply that a growing tertiary sector (services like health, education) indicates a shift toward a service-based economy, typical of developed economies. Other options are not necessarily true."
+    },
+    {
+        "q": "परिचालन अधिशेष (OS) और मिश्रित आय में क्या अंतर है?",
+        "q_en": "What is the difference between Operating Surplus (OS) and Mixed Income?",
+        "options": ["OS केवल कॉर्पोरेट लाभ है, मिश्रित आय स्व-रोजगार की आय है", "OS में वेतन शामिल है, मिश्रित आय में नहीं", "मिश्रित आय में कर शामिल हैं, OS में नहीं", "OS और मिश्रित आय एक ही हैं"],
+        "options_en": ["OS is only corporate profits, mixed income is self-employed income", "OS includes wages, mixed income does not", "Mixed income includes taxes, OS does not", "OS and mixed income are the same"],
+        "answer": 0,
+        "explanation": "नोट्स में OS को उत्पादन लागतों के बाद की आय (श्रम लागत और करों को छोड़कर) के रूप में परिभाषित किया गया है, जो फर्मों के लिए है, जबकि मिश्रित आय स्व-रोजगार व्यक्तियों (लाभ + वेतन) के लिए है। अन्य विकल्प गलत हैं।",
+        "explanation_en": "The notes define OS as income after production costs (excluding labor and taxes) for firms, while mixed income is for self-employed individuals (profit + wages). Other options are incorrect."
+    },
+    {
+        "q": "यदि जीडीपी की गणना में सेकेंड-हैंड सामान शामिल कर लिया जाए, तो क्या होगा?",
+        "q_en": "What would happen if second-hand goods are included in GDP calculation?",
+        "options": ["जीडीपी सटीक रहेगा", "जीडीपी में डबल काउंटिंग होगी", "जीडीपी शून्य हो जाएगा", "जीडीपी में केवल सेवाएं शामिल होंगी"],
+        "options_en": ["GDP will remain accurate", "GDP will have double counting", "GDP will be zero", "GDP will include only services"],
+        "answer": 1,
+        "explanation": "नोट्स में कहा गया है कि सेकेंड-हैंड सामानों को जीडीपी से बाहर रखा जाता है ताकि दोहरी गणना से बचा जा सके, क्योंकि उनका मूल्य पहली बार उत्पादन के समय गिना गया था। इन्हें शामिल करने से जीडीपी गलत रूप से बढ़ जाएगा।",
+        "explanation_en": "The notes state that second-hand goods are excluded from GDP to avoid double-counting, as their value was counted when first produced. Including them would inflate GDP inaccurately."
+    },
+    {
+        "q": "यदि आधार वर्ष में असामान्य घटनाएं (जैसे महामारी) शामिल हों, तो जीडीपी की तुलना पर क्या प्रभाव पड़ेगा?",
+        "q_en": "If the base year includes unusual events like a pandemic, what would be the impact on GDP comparisons?",
+        "options": ["जीडीपी तुलना सटीक रहेगी", "जीडीपी तुलना विकृत हो सकती है", "जीडीपी में केवल निर्यात शामिल होंगे", "जीडीपी शून्य हो जाएगा"],
+        "options_en": ["GDP comparisons will remain accurate", "GDP comparisons may be distorted", "GDP will include only exports", "GDP will be zero"],
+        "answer": 1,
+        "explanation": "नोट्स में जोर दिया गया है कि आधार वर्ष सामान्य होना चाहिए, जिसमें महामारी जैसी असामान्य घटनाएं नहीं होनी चाहिए, ताकि स्थिर बेंचमार्क बनाया जा सके। ऐसी घटनाओं को शामिल करने से तुलनाएं विकृत हो सकती हैं, क्योंकि आर्थिक परिस्थितियां असामान्य होंगी।",
+        "explanation_en": "The notes emphasize that a base year should be normal, without events like pandemics, to serve as a stable benchmark. Including such events would distort comparisons, as economic conditions would be atypical."
+    },
+    {
+        "q": "यदि कोई अर्थव्यवस्था केवल हस्तांतरण भुगतान और आयात पर निर्भर हो, तो उसका जीडीपी और राष्ट्रीय आय क्या होगा?",
+        "q_en": "If an economy relies only on transfer payments and imports, what would its GDP and National Income be?",
+        "options": ["दोनों शून्य होंगे", "जीडीपी शून्य होगा, राष्ट्रीय आय सकारात्मक होगी", "जीडीपी सकारात्मक होगा, राष्ट्रीय आय शून्य होगी", "दोनों सकारात्मक होंगे"],
+        "options_en": ["Both will be zero", "GDP will be zero, National Income will be positive", "GDP will be positive, National Income will be zero", "Both will be positive"],
+        "answer": 0,
+        "explanation": "नोट्स में कहा गया है कि आयात जीडीपी का हिस्सा नहीं हैं, और हस्तांतरण भुगतान राष्ट्रीय आय से बाहर रखे जाते हैं क्योंकि वे उत्पादन से संबंधित नहीं हैं। यदि कोई घरेलू उत्पादन नहीं है, तो जीडीपी और राष्ट्रीय आय दोनों शून्य होंगे।",
+        "explanation_en": "The notes state that imports are not part of GDP, and transfer payments are excluded from national income as they do not involve production. With no domestic production, both GDP and NI would be zero."
+    },
+    {
+        "q": "निम्नलिखित में से कौन सी स्थिति जीवीए को सबसे अधिक प्रभावित करेगी?",
+        "q_en": "Which situation would most affect GVA?",
+        "options": ["मध्यवर्ती खपत में वृद्धि", "करों में कमी", "सब्सिडी में वृद्धि", "मुद्रास्फीति में वृद्धि"],
+        "options_en": ["Increase in intermediate consumption", "Decrease in taxes", "Increase in subsidies", "Increase in inflation"],
+        "answer": 0,
+        "explanation": "नोट्स में जीवीए को उत्पादन माइनस मध्यवर्ती खपत के रूप में परिभाषित किया गया है। मध्यवर्ती खपत में वृद्धि सीधे जीवीए को कम करती है, जबकि कर, सब्सिडी, और मुद्रास्फीति जीडीपी या बाजार कीमतों को प्रभावित करते हैं, न कि सीधे जीवीए को।",
+        "explanation_en": "The notes define GVA as output minus intermediate consumption. An increase in intermediate consumption directly reduces GVA, while taxes, subsidies, and inflation affect GDP or market prices, not GVA directly."
+    },
+    
+]
+
+        let selectedAnswers = new Array(questions.length).fill(null);
+        let submitted = false;
+        let score = 0;
+        let totalSeconds = 0;
+        let language = 'hi';
+        let timerInterval;
+        let answerTimes = [];
+        let startTime;
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                totalSeconds++;
+                document.getElementById('totalTime').innerText = formatTime(totalSeconds);
+                updateTimerBar();
+            }, 1000);
+        }
+
+        function updateTimerBar() {
+            const maxTime = 150;
+            const width = (1 - totalSeconds / maxTime) * 100;
+            let color;
+            if (totalSeconds <= 50) {
+                color = 'lightgreen';
+            } else if (totalSeconds <= 75) {
+                color = 'green';
+            } else if (totalSeconds <= 100) {
+                color = 'black';
+            } else {
+                color = 'red';
+            }
+            const fill = document.getElementById('timerBarFill');
+            fill.style.width = `${width}%`;
+            fill.style.background = color;
+            if (totalSeconds >= maxTime && !submitted) {
+                submitQuiz();
+            }
+        }
+
+        function loadQuestions() {
+            const quiz = document.getElementById('quiz');
+            const lang = document.getElementById('languageToggle').value;
+            const answered = selectedAnswers.filter(a => a !== null).length;
+            document.getElementById('progressBar').style.width = (answered / questions.length * 100) + '%';
+            document.getElementById('progressCircle').textContent = `${Math.round(answered / questions.length * 100)}%`;
+            document.getElementById('progressCircle').style.transform = 'scale(0)';
+            setTimeout(() => document.getElementById('progressCircle').style.transform = 'scale(1)', 10);
+
+            quiz.innerHTML = questions.map((q, index) => {
+                let cls = '';
+                if (selectedAnswers[index] !== null) {
+                    cls = 'answered';
+                }
+                return `
+                    <div class='card ${cls}'>
+                        <div class='question'>
+                            Q${index + 1}. ${lang === 'en' ? q.q_en : q.q}
+                            ${lang === 'both' ? `<div class='en'>Q${index + 1}. ${q.q_en}</div>` : ''}
+                        </div>
+                        <div class='options'>
+                            ${q.options.map((opt, i) => {
+                                let btnCls = '';
+                                if (selectedAnswers[index] !== null) {
+                                    if (i === q.answer) btnCls = 'correct disabled';
+                                    else if (selectedAnswers[index] === i) btnCls = 'wrong disabled';
+                                    else btnCls = 'disabled';
+                                }
+                                return `
+                                    <button class='${btnCls}' onclick='selectOption(${index}, ${i})' ${btnCls.includes('disabled') ? 'disabled' : ''}>
+                                        ${String.fromCharCode(65 + i)}) ${lang === 'en' ? q.options_en[i] : opt}
+                                        ${lang === 'both' ? `<div class='en'>${String.fromCharCode(65 + i)}) ${q.options_en[i]}</div>` : ''}
+                                    </button>`;
+                            }).join('')}
+                        </div>
+                        ${selectedAnswers[index] !== null ? `
+                            <div class='explanation ${selectedAnswers[index] !== null ? 'active' : ''}'>
+                                <b>Explanation:</b> ${lang === 'en' ? q.explanation_en : q.explanation}
+                                ${lang === 'both' ? `<div class='en'><b>Explanation:</b> ${q.explanation_en}</div>` : ''}
+                            </div>` : ''}
+                    </div>`;
+            }).join('');
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+        }
+
+        function selectOption(qIndex, optIndex) {
+            if (submitted) return;
+            if (selectedAnswers[qIndex] !== null) return;
+
+            const endTime = Date.now();
+            const timeTaken = (endTime - startTime) / 1000; // Time in seconds
+            answerTimes[qIndex] = { time: timeTaken, correct: optIndex === questions[qIndex].answer };
+
+            selectedAnswers[qIndex] = optIndex;
+            if (optIndex === questions[qIndex].answer) {
+                score++;
+            }
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+            loadQuestions();
+            startTime = Date.now(); // Reset start time for the next question
+        }
+
+        function submitQuiz() {
+            if (submitted) return;
+
+            selectedAnswers.forEach((answer, index) => {
+                if (answer === null) {
+                    selectedAnswers[index] = -1; // Mark unattempted
+                }
+            });
+
+            submitted = true;
+            document.getElementById('score').innerText = `Your Score: ${score} / ${questions.length} (Total Time: ${formatTime(totalSeconds)})`;
+            loadQuestions();
+            clearInterval(timerInterval);
+            setTimeout(goToDashboard, 2000);
+        }
+
+        function openRestartModal() {
+            if (submitted) {
+                alert('Cannot restart after submit');
+                return;
+            }
+            const checkboxes = document.getElementById('questionCheckboxes');
+            checkboxes.innerHTML = '';
+
+            const selectAllLabel = document.createElement('label');
+            const selectAll = document.createElement('input');
+            selectAll.type = 'checkbox';
+            selectAll.onclick = () => {
+                const cbs = document.querySelectorAll('#questionCheckboxes input[type="checkbox"]');
+                cbs.forEach(cb => {
+                    if (cb !== selectAll) cb.checked = selectAll.checked;
+                });
+            };
+            selectAllLabel.appendChild(selectAll);
+            selectAllLabel.appendChild(document.createTextNode('Select All'));
+            checkboxes.appendChild(selectAllLabel);
+            checkboxes.appendChild(document.createElement('br'));
+
+            questions.forEach((q, i) => {
+                const label = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = i;
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(`Question ${i + 1}`));
+                checkboxes.appendChild(label);
+                checkboxes.appendChild(document.createElement('br'));
+            });
+
+            document.getElementById('restartModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('restartModal').style.display = 'none';
+        }
+
+        function applyRestart() {
+            const checkboxes = document.querySelectorAll('#questionCheckboxes input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => {
+                if (cb.value !== undefined) {
+                    const idx = parseInt(cb.value);
+                    if (selectedAnswers[idx] === questions[idx].answer) {
+                        score--;
+                    }
+                    selectedAnswers[idx] = null;
+                    answerTimes[idx] = null; // Clear answer time
+                }
+            });
+
+            closeModal();
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+            loadQuestions();
+        }
+
+        function goToQuizPage() {
+            document.getElementById('startPage').style.display = 'none';
+            document.getElementById('quizPage').style.display = 'block';
+            document.getElementById('dashboardPage').style.display = 'none';
+            startTimer();
+            loadQuestions();
+            startTime = Date.now(); // Initialize start time for the first question
+        }
+
+        function goToDashboard() {
+            document.getElementById('startPage').style.display = 'none';
+            document.getElementById('quizPage').style.display = 'none';
+            document.getElementById('dashboardPage').style.display = 'block';
+            loadDashboard();
+        }
+
+        function loadDashboard() {
+            const totalQuestions = questions.length;
+            const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+            const unattempted = totalQuestions - attempted;
+            const correct = score;
+            const wrong = attempted - correct;
+            const scorePercentage = (correct / totalQuestions * 100).toFixed(1) || 0;
+           const totalMarks = `${totalQuestions} / ${correct}`; // 1 mark per question
+
+            const totalTime = formatTime(totalSeconds);
+            const avgTimePerQuestion = (totalSeconds / attempted).toFixed(1) || 0;
+            const speed = (attempted / (totalSeconds / 60)).toFixed(1) || 0;
+            const accuracy = (correct / attempted * 100).toFixed(1) || 0;
+            const efficiency = accuracy > 80 ? 'High' : accuracy > 60 ? 'Medium' : 'Low';
+            const percentile = accuracy > 90 ? 'Top 15%' : accuracy > 70 ? 'Top 30%' : 'Top 50%';
+            const rank = Math.floor(Math.random() * 280) + 1; // Placeholder
+            let longestStreak = 0;
+            let currentStreak = 0;
+            selectedAnswers.forEach((answer, i) => {
+                if (answer === questions[i].answer) {
+                    currentStreak++;
+                    longestStreak = Math.max(longestStreak, currentStreak);
+                } else {
+                    currentStreak = 0;
+                }
+            });
+            const bestSection = 'History (100%)'; // Static as per quiz context
+            const weakSection = 'N/A'; // Placeholder
+            const improvement = accuracy > 80 ? '+5%' : '+2%'; // Placeholder
+            const performanceLevel = accuracy > 80 ? 'Advanced' : accuracy > 60 ? 'Intermediate' : 'Beginner';
+            const medals = accuracy > 80 ? 'Accuracy Master' : 'N/A'; // Placeholder
+            const efficiencyScore = (accuracy * 0.9).toFixed(0); // Placeholder
+            const predictedScore = (scorePercentage * 1.02).toFixed(1); // Placeholder
+            const fastestAnswer = answerTimes.filter(t => t).length ? Math.min(...answerTimes.filter(t => t).map(t => t.time)).toFixed(0) : 'N/A';
+            const slowestAnswer = answerTimes.filter(t => t).length ? Math.max(...answerTimes.filter(t => t).map(t => t.time)).toFixed(0) : 'N/A';
+            const avgTimeCorrect = answerTimes.filter(t => t && t.correct).length ? (answerTimes.filter(t => t && t.correct).reduce((sum, t) => sum + t.time, 0) / answerTimes.filter(t => t && t.correct).length).toFixed(1) : 'N/A';
+            const avgTimeWrong = answerTimes.filter(t => t && !t.correct).length ? (answerTimes.filter(t => t && !t.correct).reduce((sum, t) => sum + t.time, 0) / answerTimes.filter(t => t && !t.correct).length).toFixed(1) : 'N/A';
+            const timeEfficiency = (1 - totalSeconds / (totalQuestions * 30)).toFixed(2); // Placeholder
+            const guessRate = wrong > 0 ? ((wrong / attempted) * 100).toFixed(1) : 0;
+            const firstHalfAccuracy = selectedAnswers.slice(0, Math.ceil(totalQuestions / 2)).filter((a, i) => a === questions[i].answer).length / Math.ceil(totalQuestions / 2) * 100 || 0;
+
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            dashboardGrid.innerHTML = `
+                <div class="dash-box"><h4>Total Questions</h4><p>${totalQuestions}</p></div>
+                <div class="dash-box"><h4>Attempted</h4><p>${attempted}</p></div>
+                <div class="dash-box"><h4>Unattempted</h4><p>${unattempted}</p></div>
+                <div class="dash-box"><h4>Correct</h4><p>${correct}</p></div>
+                <div class="dash-box"><h4>Wrong</h4><p>${wrong}</p></div>
+                <div class="dash-box"><h4>Score</h4><p>${scorePercentage}%</p></div>
+                <div class="dash-box"><h4>Total Marks</h4><p>${totalMarks}</p></div>
+                <div class="dash-box"><h4>Total Time</h4><p>${totalTime}</p></div>
+                <div class="dash-box"><h4>Avg Time/Q</h4><p>${avgTimePerQuestion} sec</p></div>
+                <div class="dash-box"><h4>Speed</h4><p>${speed} Q/min</p></div>
+                <div class="dash-box"><h4>Accuracy</h4><p>${accuracy}%</p></div>
+                <div class="dash-box"><h4>Efficiency</h4><p>${efficiency}</p></div>
+                <div class="dash-box"><h4>Percentile</h4><p>${percentile}</p></div>
+                <div class="dash-box"><h4>Rank</h4><p>${rank} / 1</p></div>
+                <div class="dash-box"><h4>Longest Streak</h4><p>${longestStreak} Qs</p></div>
+                <div class="dash-box"><h4>Best Section</h4><p>${bestSection}</p></div>
+                <div class="dash-box"><h4>Weak Section</h4><p>${weakSection}</p></div>
+                <div class="dash-box"><h4>Improvement</h4><p>${improvement}</p></div>
+                <div class="dash-box"><h4>Performance Level</h4><p>${performanceLevel}</p></div>
+                <div class="dash-box"><h4>Medals</h4><p>${medals}</p></div>
+                <div class="dash-box"><h4>Efficiency Score</h4><p>${efficiencyScore}</p></div>
+                <div class="dash-box"><h4>Predicted Score</h4><p>${predictedScore}%</p></div>
+                <div class="dash-box"><h4>Questions/Min</h4><p>${speed} Q/min</p></div>
+                <div class="dash-box"><h4>Fastest Answer</h4><p>${fastestAnswer} sec</p></div>
+                <div class="dash-box"><h4>Slowest Answer</h4><p>${slowestAnswer} sec</p></div>
+                <div class="dash-box"><h4>Avg Time Correct</h4><p>${avgTimeCorrect} sec</p></div>
+                <div class="dash-box"><h4>Avg Time Wrong</h4><p>${avgTimeWrong} sec</p></div>
+                <div class="dash-box"><h4>Time Efficiency</h4><p>${timeEfficiency}</p></div>
+                <div class="dash-box"><h4>Guess Rate</h4><p>${guessRate}%</p></div>
+                <div class="dash-box"><h4>First-Half Accuracy</h4><p>${firstHalfAccuracy.toFixed(1)}%</p></div>
+            `;
+        }
+
+        // Initialize
+        document.getElementById('timerContainer').addEventListener('dblclick', function() {
+            this.classList.toggle('hidden');
+        });
+
+        // Load Google Fonts
+        const link = document.createElement('link');
+        link.href = 'https://fonts.googleapis.com/css2?family=Tangerine&family=Allura&family=Poppins:wght@400;600&display=swap';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+    </script>
+</body>
+</html>
